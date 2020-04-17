@@ -18,4 +18,6 @@ Please do not take any information in this blog for granted. Everything I write 
 
 I am also biased by my long work at Oracle. Oracle had its ups and downs but I believe it has excellent products; such as Oracle Cloud Infrastructure (OCI), Autonomous Database, or CX and ERP applications. The solutions I present are demonstrated on Oracle technologies.
 
+Please note that although I  work for Oracle, the views expressed on this blog are my own and do not necessarily reflect the views of Oracle.
+
 I hope you find this blog useful.
