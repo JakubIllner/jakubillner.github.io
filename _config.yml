@@ -13,16 +13,17 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: Your awesome title
-email: your-email@example.com
+title: Ebullient Data | Jakub Illner Blog 
+email: kuba.illner@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
-  Write an awesome description for your new site here. You can edit this
-  line in _config.yml. It will appear in your document head meta (for
-  Google search results) and in your feed.xml site description.
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: jekyllrb
-github_username:  jekyll
+  Ideas, observations, experiences, and rants on everything related to
+  data modeling, engineering, analysis, and infrastructure. Although I proudly work
+  for Oracle, the views expressed on this blog are my own and do not necessarily
+  reflect the views of Oracle.
+baseurl: ""
+url: "https://jakubillner.github.io/"
+twitter_username:  "JakubIllner"
+github_username:   "JakubIllner"
 
 # Build settings
 markdown: kramdown
