@@ -1,6 +1,6 @@
 ---
 layout: page
-title: About Jakub Illner and this blog
+title: About Jakub and this blog
 permalink: /about/
 ---
 
