@@ -1,3 +1,5 @@
+![Intro Picture](/images/2020-04-17-data-lake-file-formats/sipky.jpg)
+
 # **Introduction**
 
 In theory, a data lake promises data can be stored in the original
