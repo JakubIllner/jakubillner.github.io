@@ -4,6 +4,8 @@ title: About Jakub and this blog
 permalink: /about/
 ---
 
+![Intro Picture](/images/about/mulhacen.JPG)
+
 I designed my first data warehouse in 1999. Since then I was involved in dozens large scale data management projects, mostly in the role of solution architect, analyst, designer, and data modeler.
 
 I grew up on Oracle database and integration products, and later expanded the skills to big data, event processing, and cloud native technologies. Over the time I learned that successful systems must address not just data itself, but also master data, information lifecycle, ownership, security, and operations. In short, the whole data ecosystem.
