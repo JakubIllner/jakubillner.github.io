@@ -1,4 +1,4 @@
-![Intro Picture](/images/2020-04-17-data-lake-file-formats/sipky.jpg)
+![Intro Picture](/images/2020-04-17-data-lake-file-formats/sipky.JPG)
 
 # **Introduction**
 
