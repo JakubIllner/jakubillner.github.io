@@ -24,6 +24,7 @@ baseurl: ""
 url: "https://jakubillner.github.io/"
 twitter_username:  "JakubIllner"
 github_username:   "JakubIllner"
+google_analytics: "UA-164251707-1"
 
 # Build settings
 markdown: kramdown
