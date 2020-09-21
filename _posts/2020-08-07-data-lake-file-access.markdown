@@ -15,7 +15,7 @@ The post is a sequel to the previous entry, where I compared several commonly us
 file formats from the space efficiency and speed of processing points of view.
 The first post is available here:
 
-![Data Lake File Formats](https://jakubillner.github.io/2020/04/17/data-lake-file-formats.html)
+[Data Lake File Formats](https://jakubillner.github.io/2020/04/17/data-lake-file-formats.html)
 
 
 # __Architecture__
@@ -25,7 +25,7 @@ post I tested data processing between Landing Layer and Prepared Data Layer usin
 Python modules, in this post I evaluate access to Prepared Data Layer from Query
 Server, i.e. instance of Autonomous Data Warehouse.
 
-![Simple Data Lake Architecture](/images/2020-08-07-data-lake-file-formats/sample-data-lake-architecture.png)
+![Simple Data Lake Architecture](/images/2020-08-07-data-lake-file-access/sample-data-lake-architecture.png)
 
 For the test, I used the smallest ADW instance, with 1 OCPU and 1 TB of storage.
 The version of ADW was 19c. To access the database and run test SQL commands,
@@ -58,7 +58,7 @@ CREATE_EXTERNAL_TABLE.
 
 For reference, the documentation on DBMS_CLOUD is available here:
 
-![DBMS_CLOUD Documentation](https://docs.oracle.com/en/cloud/paas/autonomous-data-warehouse-cloud/user/dbms-cloud.html)
+[DBMS_CLOUD Documentation](https://docs.oracle.com/en/cloud/paas/autonomous-data-warehouse-cloud/user/dbms-cloud.html)
 
 ## JSON files
 
