@@ -137,9 +137,9 @@ schema from Avro files.
 
 ```
 dbms_cloud.create_external_table(
-  table_name => 'SMALL_HTTP_LOG_FILE_N_AVRO'
+  table_name => 'LARGE_HTTP_LOG_FILE_N_AVRO'
 , credential_name => 'ObjectStorage'
-, file_uri_list => 'https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/<namespace>/b/test-bucket/o/target/small/http_log_file*_n.avro'
+, file_uri_list => 'https://objectstorage.eu-frankfurt-1.oraclecloud.com/n/<namespace>/b/test-bucket/o/target/large/http_log_file*_n.avro'
 , format =>  '{"type":"avro", "schema": "first"}'
 );
 ```
