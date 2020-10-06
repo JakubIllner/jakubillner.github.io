@@ -1,4 +1,5 @@
-![Intro Picture](/images/2020-10-08-converting-markdown-to-pdf/lekarna-Kuks.JPG)
+
+![Intro Picture](/images/2020-10-08-converting-markdown-to-pdf/lekarna-Kuks.jpg)
 
 # __Introduction__
 
