@@ -1,7 +1,7 @@
 
 ![Intro Picture](/images/2022-08-05-private-hybrid-dns-in-oci/oder.jpg)
 
-# __Why We Need Private Hybrid DNS?__
+# Why We Need Private Hybrid DNS?
 
 Name resolution is often overlooked topic in many data management projects. It is not a
 problem when all the components are in a single Virtual Cloud Network (VCN), but it becomes
@@ -29,8 +29,13 @@ And here are some scenarios in which on-premises names must be resolvable in OCI
 * OCI Data Integration needs to connect to SQL Server database on-premises.
 * OCI Data Science notebook needs to access Hadoop cluster on-premises.
 
+__Disclaimer__: I am not a DNS specialist; so I apologize in advance if I used some terms
+incorrectly. Also, this post is not cookbook on how to configure DNS in your OCI and
+on-premises networks. Rather, it focuses on understanding the concepts, capabilities, and
+topology of the private hybrid DNS in OCI.
 
-# __Alternatives to Private Hybrid DNS__
+
+# Alternatives to Private Hybrid DNS
 
 Before looking at private hybrid DNS, let's briefly mention the alternatives.
 
@@ -70,7 +75,7 @@ The second, also important reason, is __security__ - SSL enabled OCI services re
 use these services with IP addresses.
 
 
-# __How VCN DNS Resolver Works__
+# How VCN DNS Resolver Works
 
 ## DNS Resolver
 
@@ -85,7 +90,7 @@ Note the address `169.254.169.254` is the same address as used by instance metad
 service (IMDS) in OCI. IMDS is provided to every instance via primary VNIC - you do not
 have to configure any routing and security list in the VCN for the IMDS (and the default
 VCN resolver) to work. More information about IMDS is available here:
-https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/gettingmetadata.htm
+[OCI Metadata Service](https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/gettingmetadata.htm).
 
 
 ## Private Views
@@ -121,7 +126,7 @@ Endpoint__ in the VCN. Furthermore, you have to configure forwarding rules in th
 nameservers, that will redirect DNS queries to OCI domains to the Listening Endpoint.
 
 
-# __Private Hybrid DNS Design__
+# Private Hybrid DNS Design
 
 ## Concept
 
@@ -197,9 +202,9 @@ domain `*lhr.oraclevcn.com` to hub listener in London Management VCN.
 
 The network configuration in both OCI and on-premises networks must allow DNS traffic
 between the on-premises DNS Server, DNS Resolver Listening Endpoint, and DNS Resolver
-Forwarding Endpoint. The DNS traffic consists of ingress (to Listening Endpoint and to on-
-premises DNS Server) and egress (from Forwarding Endpoint and from on-premises DNS Server)
-for `UDP` and `TCP` on protocol `53`. Both `UDP` and `TCP` must be enabled.
+Forwarding Endpoint. The DNS traffic consists of ingress (to Listening Endpoint and to
+on-premises DNS Server) and egress (from Forwarding Endpoint and from on-premises DNS
+Server) for `UDP` and `TCP` on protocol `53`. Both `UDP` and `TCP` must be enabled.
 
 On the OCI side, the preferred way of enabling the DNS traffic is to define Network
 Security Group (NSG) in each VCN that will contain Listening and Forwarding Endpoints and
@@ -210,7 +215,7 @@ As already mentioned, DNS queries from instances in OCI VCNs to DNS resolver on
 available on every OCI instance.
 
 
-# __Resources__
+# Resources
 
 * OCI documentation describing DNS in VCN:
 [Private DNS](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/dns.htm).
