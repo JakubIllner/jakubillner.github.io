@@ -70,7 +70,7 @@ The second, also important reason, is __security__ - SSL enabled OCI services re
 use these services with IP addresses.
 
 
-# __How VCN Resolver Works__
+# __How VCN DNS Resolver Works__
 
 ## DNS Resolver
 
@@ -208,4 +208,15 @@ allow `UDP/53` and `TCP/53` traffic.
 As already mentioned, DNS queries from instances in OCI VCNs to DNS resolver on
 `169.254.169.254` do not require any configuration as the name service is automatically
 available on every OCI instance.
+
+
+# __Resources__
+
+* OCI documentation describing DNS in VCN:
+[Private DNS](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/dns.htm).
+* OCI documentation describing DNS Resolver:
+[DNS Resolver](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/dns.htm#Private_resolver).
+* Common Private DNS scenarios from Oracle A-team:
+[Common DNS Scenarios](https://www.ateam-oracle.com/post/oci-private-dns---common-scenarios).
+
 
