@@ -1,7 +1,7 @@
 
 ![Intro Picture](/images/2022-08-05-private-hybrid-dns-in-oci/oder.jpg)
 
-# Why We Need Private Hybrid DNS?
+# __Why We Need Private Hybrid DNS?__
 
 Name resolution is often overlooked topic in many data management projects. It is not a
 problem when all the components are in a single Virtual Cloud Network (VCN), but it becomes
@@ -35,7 +35,7 @@ on-premises networks. Rather, it focuses on understanding the concepts, capabili
 topology of the private hybrid DNS in OCI.
 
 
-# Alternatives to Private Hybrid DNS
+# __Alternatives to Private Hybrid DNS__
 
 Before looking at private hybrid DNS, let's briefly mention the alternatives.
 
@@ -75,7 +75,7 @@ The second, also important reason, is __security__ - SSL enabled OCI services re
 use these services with IP addresses.
 
 
-# How VCN DNS Resolver Works
+# __How VCN DNS Resolver Works__
 
 ## DNS Resolver
 
@@ -126,7 +126,7 @@ Endpoint__ in the VCN. Furthermore, you have to configure forwarding rules in th
 nameservers, that will redirect DNS queries to OCI domains to the Listening Endpoint.
 
 
-# Private Hybrid DNS Design
+# __Private Hybrid DNS Design__
 
 ## Concept
 
@@ -215,7 +215,7 @@ As already mentioned, DNS queries from instances in OCI VCNs to DNS resolver on
 available on every OCI instance.
 
 
-# Resources
+# __Resources__
 
 * OCI documentation describing DNS in VCN:
 [Private DNS](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/dns.htm).
