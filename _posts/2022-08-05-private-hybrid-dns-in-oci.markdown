@@ -29,7 +29,7 @@ And here are some scenarios in which on-premises names must be resolvable in OCI
 * OCI Data Integration needs to connect to SQL Server database on-premises.
 * OCI Data Science notebook needs to access Hadoop cluster on-premises.
 
-__Disclaimer__: I am not a DNS specialist; so I apologize in advance if I used some terms
+__Disclaimer__: I am not a DNS specialist, so I apologize in advance if I used some terms
 incorrectly. Also, this post is not cookbook on how to configure DNS in your OCI and
 on-premises networks. Rather, it focuses on understanding the concepts, capabilities, and
 topology of the private hybrid DNS in OCI.
@@ -54,12 +54,16 @@ with configuration files like `/etc/hosts` because of security and manageability
 
 You can also decide to use on-premises private DNS to resolve OCI hostnames. In this case,
 you would modify VCN's __DHCP Options__ and specify on-premises nameserver(s), so that OCI
-instances will use on-premises nameserver instead of default OCI resolver available on
+instances will use on-premises nameserver instead of default VCN DNS resolver available on
 `169.254.169.254`. And, of course, you need to manage mapping of OCI hostnames and private
-IP addresses in on-premises DNS registry.
+IP addresses in the on-premises DNS registry.
 
-While this option is certainly viable, it brings significant management overhead that can
-be eliminated by private hybrid DNS.
+However, this approach introduces strong dependency on on-premises nameserver. If the
+connectivity to on-premises network or the nameserver does not work, the name resolution
+in OCI will not work as well. For this reason, I believe that on-premises hostnames should
+be primarily managed in the on-premises DNS, and OCI hostnames in the OCI private DNS.
+And, of course, DNS records for standard OCI hostnames (e.g., with domain `oraclevcn.com`)
+are managed automatically within OCI.
 
 
 ## IP Addresses instead of Hostnames
@@ -77,14 +81,15 @@ use these services with IP addresses.
 
 # __How VCN DNS Resolver Works__
 
-## DNS Resolver
+## VCN DNS Resolver
 
 When you provision a new Virtual Cloud Network (VCN), OCI automatically creates a
 __dedicated DNS Resolver__ for the VCN, with the same name as VCN. All instances in the
-VCN may use the resolver by sending DNS queries to `169.254.169.254`. The VCN resolver
-automatically resolves hostnames in VCN's private views. Every VCN contains a single
-private view with all the hostnames in VCN; hence hostnames within VCN are resolved
-automatically. You may also add additional private views.
+VCN may use the resolver by sending DNS queries to `169.254.169.254`.
+
+The VCN resolver automatically resolves hostnames in VCN's private views. Every VCN
+contains a single private view with all the hostnames in VCN; hence hostnames within VCN
+are resolved automatically. You may also add additional private views.
 
 Note the address `169.254.169.254` is the same address as used by instance metadata
 service (IMDS) in OCI. IMDS is provided to every instance via primary VNIC - you do not
@@ -99,18 +104,19 @@ The DNS Resolver automatically resolves only the hostnames in the VCN. If you ne
 resolve hostnames from other VCNs in the same region, you may __associate private views__,
 corresponding to these other VCNs, with the DNS Resolver. This is a simple operation that
 can be done in OCI Console, or through CLI, API, or SDK. Note the association works in the
-same region; you cannot associate private view from another region.
+same region only; you cannot associate private view from another region.
 
 
 ## Forwarding Endpoint
 
 The DNS Resolver can also forward DNS queries for selected domains to other nameservers.
 This feature is useful for resolving on-premises hostnames in OCI; or for resolving
-hostnames from other OCI regions. To forward the DNS queries, you have to create a
-__Forwarding Endpoint__ in the DNS Resolver, from which the resolver will send the
-queries. Furthermore, you have to add a __Forwarding Rule__ to forward queries to
-specified DNS domains and the IP address of the external nameserver that will resolve
-these queries.
+hostnames from other OCI regions.
+
+To forward the DNS queries, you have to create a __Forwarding Endpoint__ in the DNS
+Resolver, from which the resolver will send the queries. In the second step, you have to
+add a __Forwarding Rule__ to forward queries to specified DNS domains and the IP address
+of the external nameserver that will resolve these queries.
 
 It is worth noting that currently it is possible to specify only one nameserver for the
 given domain. If you define another rule with the same domain and another nameserver, the
@@ -121,9 +127,11 @@ rule will be ignored even if the first nameserver fails.
 
 And finally, the DNS Resolver can answer DNS queries from other nameservers. This
 feature is useful for resolving OCI hostnames in the on-premises network; or for resolving
-hostnames from other OCI regions. To answer DNS queries, you have to create a __Listening
-Endpoint__ in the VCN. Furthermore, you have to configure forwarding rules in the source
-nameservers, that will redirect DNS queries to OCI domains to the Listening Endpoint.
+hostnames from other OCI regions.
+
+To answer DNS queries, you have to create a __Listening Endpoint__ in the VCN. Then you
+have to configure forwarding rules in the source nameservers, that will redirect DNS
+queries to OCI domains to the Listening Endpoint.
 
 
 # __Private Hybrid DNS Design__
@@ -148,13 +156,13 @@ The DNS Resolver in the Management VCN plays the role of DNS hub for other workl
 and on-premises DNS.
 
 It contains associated private views of workload VCNs `wk1-fra-vcn` and `wk2-fra-vcn`; and
-therefore it can resolve hostnames not only in the Management VCN, but also hostnames of
+therefore, it can resolve hostnames not only in the Management VCN, but also hostnames of
 instances in these workload VCNs.
 
 Furthermore, it contains Forwarding Endpoint `forwarder.dns.mgmtfra.oraclevcn.com` and a
 rule, which forwards DNS queries to on-premises domains like `abc.com` to the on-premises
 DNS Server. In other words, it is also able to resolve hostnames from the on-premises
-domain. Note the on-premises DNS server must be spcified by IP address; not by its hostname.
+domain. Note the on-premises DNS server must be specified by IP address, not by its hostname.
 
 And finally, it contains Listening Endpoint `listener.dns.mgmtfra.oraclevcn.com`, which
 answers DNS queries coming from on- premises, from the workload VCNs, and possibly also
@@ -166,7 +174,7 @@ from VCNs in other regions.
 The DNS Resolvers in workload VCNs contain Forwarding Endpoints such as
 `forwarder.dns.wk1fra.oraclevcn.com` and a rule, which forwards DNS queries to on-premises
 domains like `abc.com` to the hub listener `listener.dns.mgmtfra.oraclevcn.com`. Note the
-hub listener must be specified by IP address; not by its hostname.
+hub listener must be specified by IP address, not by its hostname.
 
 The DNS Resolvers in workload VCNs may also contain associated views of other VCNs such as
 `mgmt-fra-vcn`, so that they can resolve hostnames from other VCNs in the same region.
@@ -183,7 +191,7 @@ you use platform services with private endpoints, such as Autonomous Database or
 The on-premises DNS Server must be configured to forward DNS queries for OCI domains to
 the hub listener `listener.dns.mgmtfra.oraclevcn.com`. In our example, this includes
 domains `mgmtfra.oraclevcn.com`, `wk1fra.oraclevcn.com`, and `wk2fra.oraclevcn.com`. Note
-the hub listener must be specified by IP address; not by its hostname.
+the hub listener must be specified by IP address, not by its hostname.
 
 
 ## Forwarding Rules and VCN DNS Labels
