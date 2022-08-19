@@ -203,7 +203,7 @@ for DNS Label of Management VCN in London region.
 
 With this naming convention, on-premises DNS Server may forward DNS queries to domains
 `*fra.oraclevcn.com` to hub listener in Frankfurt Management VCN; and DNS queries to
-domains `*lhr.oraclevcn.com` to hub listener in London Management VCN.
+domains  `*lhr.oraclevcn.com` to hub listener in London Management VCN.
 
 
 ## Security Lists and Firewalls
