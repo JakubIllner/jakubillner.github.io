@@ -201,9 +201,9 @@ forwarding rules. I strongly recommend including abbreviation of OCI region in t
 Label - e.g., `mgmtfra` for DNS Label of Management VCN in Frankfurt region, or `mgmtlhr`
 for DNS Label of Management VCN in London region.
 
-With this naming convention, on-premises DNS Server may forward DNS queries to domain
+With this naming convention, on-premises DNS Server may forward DNS queries to domains
 `*fra.oraclevcn.com` to hub listener in Frankfurt Management VCN; and DNS queries to
-domain `*lhr.oraclevcn.com` to hub listener in London Management VCN.
+domains `*lhr.oraclevcn.com` to hub listener in London Management VCN.
 
 
 ## Security Lists and Firewalls
