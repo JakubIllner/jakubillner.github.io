@@ -1,5 +1,5 @@
 
-![Intro Picture](../images/2022-09-30-json-in-autonomous-database/marsh.jpg)
+![Intro Picture](/images/2022-09-30-json-in-autonomous-database/marsh.jpg)
 
 # __Introduction__
 
@@ -29,7 +29,7 @@ documents.__
 
 The Oracle Cloud configuration I used for this post is depicted below.
 
-![Hybrid DNS Design](../images/2022-09-30-json-in-autonomous-database/json-in-autonomous-database.png)
+![Hybrid DNS Design](/images/2022-09-30-json-in-autonomous-database/json-in-autonomous-database.png)
 
 * Oracle Compute instance is used as a client to load and query JSON data. The instance
 runs OL7 on E4-based AMD shape with 1 OCPU, 16 GB of RAM, and Block Storage based boot
@@ -214,7 +214,7 @@ The first test compares how much storage is required by different storage option
 And the graphical representation of JSON storage requirements are here, with the black
 line showing size of source documents.
 
-![Storage Requirements](../images/2022-09-30-json-in-autonomous-database/overall-storage.png)
+![Storage Requirements](/images/2022-09-30-json-in-autonomous-database/overall-storage.png)
 
 As you can see, the 2nd scenario with the new binary JSON format (OSON) is more than 30%
 efficient than storing JSON as text in BLOB columns. And when applying medium compression
@@ -274,7 +274,7 @@ scenarios and levels of parallelism I loaded 1 million of JSON documents (23 GB 
 And here you can see the load performance as a chart, with Records per second on the
 Y-axis and Threads (Level of Parallelism) on Y-axis.
 
-![Load Peformance](../images/2022-09-30-json-in-autonomous-database/overall-throughput.png)
+![Load Peformance](/images/2022-09-30-json-in-autonomous-database/overall-throughput.png)
 
 The 3rd scenario with JSON data in OSON format and medium compression provides the best
 load performance which scales well up to 8 parallel threads on 1 OCPU ADW instance. For
@@ -325,7 +325,7 @@ million JSON documents to get the required results.
 And here you can see the query performance as a chart, with Queries per 10 minutes on the
 Y-axis and Threads (Level of Parallelism) on Y-axis.
 
-![Query Peformance](../images/2022-09-30-json-in-autonomous-database/overall-queries.png)
+![Query Peformance](/images/2022-09-30-json-in-autonomous-database/overall-queries.png)
 
 Scenarios with JSON documents using binary OSON format (2nd, 3rd, and 4th scenarios)
 deliver similar performance for up to 4 threads. With more than 4 threads the performance
