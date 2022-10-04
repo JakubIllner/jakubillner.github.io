@@ -29,7 +29,7 @@ documents.__
 
 The Oracle Cloud configuration I used for this post is depicted below.
 
-![Hybrid DNS Design](/images/2022-09-30-json-in-autonomous-database/json-in-autonomous-database.png)
+![Cloud Setup](/images/2022-09-30-json-in-autonomous-database/json-in-autonomous-database.png)
 
 * Oracle Compute instance is used as a client to load and query JSON data. The instance
 runs OL7 on E4-based AMD shape with 1 OCPU, 16 GB of RAM, and Block Storage based boot
@@ -76,7 +76,7 @@ only.
 
 * BLOB - recommended for JSON documents that may exceed 32767 characters. BLOB may be
 stored either unompressed or compressed with varying degree of compression (low, medium,
-low).
+high).
 
 * BLOB with optimized binary format OSON - this is new binary JSON format that was
 introduced in Oracle Database 21c and backported to Autonomous Database. It should provide
@@ -181,8 +181,7 @@ connection.commit()
 
 To test performance of accessing JSON documents in the Autonomous Database, I used a
 simple query that counts number of documents by two first level attributes. It queries all
-1 million documents in a JSON table. Note I disabled Result Cache to have consistent
-results across multiple executions of the same query.
+1 million documents in a JSON table.
 
 ```
 select /*+NO_RESULT_CACHE*/
@@ -199,6 +198,9 @@ group by to_char(created_date,'YYYY/MM/DD'), doc_status
 order by to_char(created_date,'YYYY/MM/DD'), doc_status
 ```
 
+Note I disabled Result Cache to have consistent results across multiple executions of the
+same query.
+
 
 # __Test 1 - Storage Efficiency__
 
@@ -211,7 +213,7 @@ The first test compares how much storage is required by different storage option
 | 3. JSON in BLOB column with OSON format and medium compression | 1 M                      | 23 GB                 | 78 MB                  | 12 GB                | 1.87 x            |
 | 4. JSON Collection                                             | 1 M                      | 23 GB                 | 154 MB                 | 20 GB                | 1.15 x            | 
 
-And the graphical representation of JSON storage requirements are here, with the black
+And the graphical representation of JSON storage requirements is here, with the black
 line showing size of source documents.
 
 ![Storage Requirements](/images/2022-09-30-json-in-autonomous-database/overall-storage.png)
@@ -289,9 +291,9 @@ The 1st scenario with JSON data in text format delivers worse load performance f
 and 4 threads than 2nd and 3rd scenarios with OSON format. Unlike them, it scales linearly
 up to 16 threads as it utilizes the ADW instance less than the previous scenarios.
 
-The 4th scenario with JSON Collection provides suprisingly the worse load performance and
+The 4th scenario with JSON Collection provides suprisingly the worst load performance and
 scalability. I suspect it might be because of Collection metadata that are managed during
-the load and that the performance will be improved with metadata caching, but I was unable
+the load and that the performance could be improved with metadata caching, but I was unable
 to verify this hypothesis. I will return to it in the next post.
 
 
@@ -386,6 +388,7 @@ I did not test the following scenarios:
 * Load and query performance with ADW instance using 2 and more OCPUs or with Autoscaling enabled.
 * Load performance of JSON Collection with metadata caching.
 * Load performance of JSON Collection with `SodaCollection.insertMany()` operation.
+* Load performance of mix of Insert and Update operations.
 
 I hope to return to these scenarios in some of the following posts.
 
