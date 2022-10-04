@@ -75,7 +75,7 @@ the characters in CLOB require 2 bytes, even if they can be represented by singl
 only.
 
 * BLOB - recommended for JSON documents that may exceed 32767 characters. BLOB may be
-stored either unompressed or compressed with varying degree of compression (low, medium,
+stored either uncompressed or compressed with varying degree of compression (low, medium,
 high).
 
 * BLOB with optimized binary format OSON - this is new binary JSON format that was
