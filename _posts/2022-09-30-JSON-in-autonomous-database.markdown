@@ -1,3 +1,7 @@
+layout: post
+title: "Large and complex JSON documents in Autonomous Database"
+date: 2022-09-30 18:00:00 -0000
+categories: AUTONOMOUS-DATABASE JSON
 
 ![Intro Picture](/images/2022-09-30-json-in-autonomous-database/marsh.jpg)
 
@@ -129,16 +133,6 @@ create table json3 (
 lob(doc_body) store as (compress medium)
 ```
 
-__4. JSON Collection__
-
-```
-declare
-    collection soda_collection_t;
-begin
-    collection := dbms_soda.create_collection('json4');
-end;
-```
-
 
 # __JSON Loading Approach__
 
@@ -148,9 +142,7 @@ files into JSON tables one by one, committing work after every 100 records. It a
 to run multiple instances of the program to test performance with multiple parallel
 threads. Note that `cx_Oracle` supports both SQL and SODA interfaces.
 
-Here are code snippets to load JSON documents:
-
-__1., 2. and 3. JSON in BLOB column__
+Here is the code snippet to load JSON documents:
 
 ```
 doc_id = 0
@@ -160,19 +152,6 @@ for entry in os.scandir(directory):
             doc_id = doc_id+1
             doc_body = file.read()
             cursor.execute( 'insert into {0} values (:1, :2)'.format(target), (doc_id, doc_body) )
-connection.commit()
-```
-
-__4. JSON Collection__
-
-```
-doc_id = 0
-for entry in os.scandir(directory):
-    if entry.is_file() and entry.name.endswith('.json'):
-        with open(entry.path, 'r') as file:
-            doc_id = doc_id+1
-            doc_body = json.loads(file.read())
-            collection.insertOne(doc_body)
 connection.commit()
 ```
 
@@ -211,7 +190,6 @@ The first test compares how much storage is required by different storage option
 | 1. JSON in BLOB column                                         | 1 M                      | 23 GB                 | 59 MB                  | 29 GB                | 0.79 x            |
 | 2. JSON in BLOB column with OSON format                        | 1 M                      | 23 GB                 | 59 MB                  | 20 GB                | 1.15 x            |
 | 3. JSON in BLOB column with OSON format and medium compression | 1 M                      | 23 GB                 | 78 MB                  | 12 GB                | 1.87 x            |
-| 4. JSON Collection                                             | 1 M                      | 23 GB                 | 154 MB                 | 20 GB                | 1.15 x            | 
 
 And the graphical representation of JSON storage requirements is here, with the black
 line showing size of source documents.
@@ -222,26 +200,6 @@ As you can see, the 2nd scenario with the new binary JSON format (OSON) is more 
 efficient than storing JSON as text in BLOB columns. And when applying medium compression
 to BLOB columns in the 3rd scenario, we can furthermore decrease the storage to almost 50%
 of the size of source data.
-
-The results confirm that JSON Collections use uncompressed OSON format, as the LOB size is
-exactly the same for the 2nd and 4th scenarios.
-
-You may wonder why JSON Collection requires more space for non-LOB attributes. The reason
-is simple - when you create a JSON Collection, Oracle automatically adds several metadata
-columns. When you look at the table that contains the collection, you will see it actully
-contains the following columns:
-
-```
-create table json4 (
-  id varchar2(255 byte) not null,
-  created_on timestamp (6) not null default sys_extract_utc(systimestamp),
-  last_modified timestamp (6) not null default sys_extract_utc(systimestamp),
-  version varchar2(255 byte) not null,
-  json_document blob,
-  constraint sys_c0042177 primary key (id),
-  constraint sys_c0042176 check (json_document is json format oson (size limit 32m))
-)
-```
 
 
 # __Test 2 - Load Performance__
@@ -267,11 +225,6 @@ scenarios and levels of parallelism I loaded 1 million of JSON documents (23 GB 
 |                                                                | 4       | 16 min       | 1026               | 24 MB            |
 |                                                                | 8       | 13 min       | 1319               | 31 MB            |
 |                                                                | 16      | 17 min       | 991                | 23 MB            |
-| 4. JSON Collection                                             | 1       | 73 min       | 233                | 5 MB             |
-|                                                                | 2       | 42 min       | 397                | 9 MB             |
-|                                                                | 4       | 25 min       | 672                | 16 MB            |
-|                                                                | 8       | 20 min       | 815                | 19 MB            |
-|                                                                | 16      | 21 min       | 800                | 19 MB            |
 
 And here you can see the load performance as a chart, with Records per second on the
 Y-axis and Threads (Level of Parallelism) on Y-axis.
@@ -290,11 +243,6 @@ than 8 threads, the performance also degrades.
 The 1st scenario with JSON data in text format delivers worse load performance for 1, 2,
 and 4 threads than 2nd and 3rd scenarios with OSON format. Unlike them, it scales linearly
 up to 16 threads as it utilizes the ADW instance less than the previous scenarios.
-
-The 4th scenario with JSON Collection provides suprisingly the worst load performance and
-scalability. I suspect it might be because of Collection metadata that are managed during
-the load and that the performance could be improved with metadata caching, but I was unable
-to verify this hypothesis. I will return to it in the next post.
 
 
 # __Test 3 - Query Performance__
@@ -319,22 +267,21 @@ million JSON documents to get the required results.
 |                                                                 | 2       | 58 min       | 7 min          | 16                | 2.75                   |
 |                                                                 | 4       | 62 min       | 8 min          | 32                | 5.19                   |
 |                                                                 | 8       | 132 min      | 16 min         | 64                | 4.85                   |
-| 4. JSON Collection                                              | 1       | 62 min       | 8 min          | 8                 | 1.29                   |
-|                                                                 | 2       | 60 min       | 8 min          | 16                | 2.67                   |
-|                                                                 | 4       | 63 min       | 8 min          | 32                | 5.05                   |
-|                                                                 | 8       | 117 min      | 14 min         | 64                | 5.47                   |
 
 And here you can see the query performance as a chart, with Queries per 10 minutes on the
 Y-axis and Threads (Level of Parallelism) on Y-axis.
 
 ![Query Peformance](/images/2022-09-30-json-in-autonomous-database/overall-queries.png)
 
-Scenarios with JSON documents using binary OSON format (2nd, 3rd, and 4th scenarios)
-deliver similar performance for up to 4 threads. With more than 4 threads the performance
-degrades since the ADW instance is fully saturated. There is no discernable difference
-between compressed and uncompressed storage.
+The 3rd scenario with JSON data in OSON format and medium compression provides the best
+query performance which scales well up to 4 parallel threads on 1 OCPU ADW instance. For
+more than 4 threads the performance deteriorates as the ADW instance is fully saturated.
 
-1st scenario with JSON documents using text format delivers significantly lower query
+The 2nd scenario with JSON data in OSON format (uncompressed) provides slightly worse
+performance than 3rd scenario for 2 and 4 threads. Furthermore, it scales up to 8 threads,
+unlike the 3rd scenario with medium compression.
+
+The 1st scenario with JSON documents using text format delivers significantly lower query
 performace than the other scenarios. This is probably caused by the need to parse and
 process JSON documents for every query, while the binary OSON format provides optimized
 access path for fields within JSON.
@@ -342,33 +289,20 @@ access path for fields within JSON.
 
 # Key Takeaways
 
-* __A. Do not run analytical queries directly against JSON documents if you require fast
-performance and many concurrent users.__ Running analytics directly against complex JSON
-documents is significantly slower and it requires more resources than if the data is
-mapped into relational tables or materialized views. It is perfectly ok to access complex
-JSON documents directly during data exploration or infrequent adhoc queries; but I
-recommend transforming JSON documents into relational structures for high-volume
-reporting.
-
-* __B. Consider the new binary JSON format (OSON) instead of text format.__ The OSON format
+* __A. Consider the new binary JSON format (OSON) instead of text format.__ The OSON format
 provides better query and load performance. It is also more storage efficient. Therefore I
 do not see any reason why not to start using OSON format for all large JSON documents.
 
-* __C. Consider compression for JSON documents in BLOB columns.__ JSON documents in
+* __B. Consider compression for JSON documents in BLOB columns.__ JSON documents in
 compressed BLOB column provide better or comparable load and query performance to
 uncompressed BLOB column while significantly reducing storage requirements. The only catch
 seems to be higher sensitivity to highly utilized systems, when the performance degrades
-faster then with uncompressed storage.
+faster then with the uncompressed storage.
 
-* __D. Single ADW OCPU can support up to 4-8 sessions loading JSON documents.__ Depending
+* __C. Single ADW OCPU can support up to 4-8 sessions loading JSON documents.__ Depending
 on the storage format, single OCPU of ADW can support maximum of 4 to 8 concurrent
 sessions inserting large and complex JSON documents. More concurrent sessions will lead to
 degraded performance as the ADW instance becomes overutilized.
-
-* __E. Load performance of JSON Collections requires further analysis.__ My measurements
-show significantly worse load performance for JSON Collections compared to standard tables
-with JSON documents in BLOB columns with OSON format. This is unexpected behaviour which I
-think might be caused by missing metadata caching.
 
 Note these messages are valid for the scenario presented in this post; i.e., for large,
 complex JSON documents which must be stored in BLOB columns. I strongly recommend testing
@@ -386,8 +320,7 @@ I did not test the following scenarios:
 * Performance of OLTP queries with where conditions on JSON fields.
 * Storage requirements and load performance with indexed JSON columns.
 * Load and query performance with ADW instance using 2 and more OCPUs or with Autoscaling enabled.
-* Load performance of JSON Collection with metadata caching.
-* Load performance of JSON Collection with `SodaCollection.insertMany()` operation.
+* Load performance of JSON Collection.
 * Load performance of mix of Insert and Update operations.
 
 I hope to return to these scenarios in some of the following posts.
