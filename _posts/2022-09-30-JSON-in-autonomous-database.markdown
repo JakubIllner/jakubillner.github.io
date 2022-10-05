@@ -1,7 +1,3 @@
-layout: post
-title: "Large and complex JSON documents in Autonomous Database"
-date: 2022-09-30 18:00:00 -0000
-categories: AUTONOMOUS-DATABASE JSON
 
 ![Intro Picture](/images/2022-09-30-json-in-autonomous-database/marsh.jpg)
 
