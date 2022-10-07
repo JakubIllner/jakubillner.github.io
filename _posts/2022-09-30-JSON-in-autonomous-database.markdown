@@ -204,28 +204,34 @@ The second test compares load performance of different scenarios. For every comb
 scenarios and levels of parallelism I loaded 1 million of JSON documents (23 GB in total)
 5 times. The presented numbers are averages across the 5 executions.
 
-| Scenario                                                       | Threads | Elapsed time | Records per second | Bytes per second |
-| :------------------------------------------                    | ------: | -----------: | -----------------: | ---------------: |
-| 1. JSON in BLOB Column                                         | 1       | 70 min       | 238                | 6 MB             |
-|                                                                | 2       | 38 min       | 436                | 10 MB            |
-|                                                                | 4       | 21 min       | 776                | 18 MB            |
-|                                                                | 8       | 13 min       | 1288               | 30 MB            |
-|                                                                | 16      | 10 min       | 1686               | 39 MB            |
-| 2. JSON in BLOB column with OSON format                        | 1       | 64 min       | 259                | 6 MB             |
-|                                                                | 2       | 33 min       | 508                | 12 MB            |
-|                                                                | 4       | 18 min       | 961                | 22 MB            |
-|                                                                | 8       | 11 min       | 1538               | 36 MB            |
-|                                                                | 16      | 13 min       | 1329               | 31 MB            |
-| 3. JSON in BLOB column with OSON format and medium compression | 1       | 43 min       | 392                | 9 MB             |
-|                                                                | 2       | 31 min       | 537                | 12 MB            |
-|                                                                | 4       | 16 min       | 1026               | 24 MB            |
-|                                                                | 8       | 13 min       | 1319               | 31 MB            |
-|                                                                | 16      | 17 min       | 991                | 23 MB            |
+| Scenario                                                       | Threads | Elapsed time | Records per second | Bytes per second | ADW CPU Utilization |
+| :------------------------------------------                    | ------: | -----------: | -----------------: | ---------------: | ------------------: |
+| 1. JSON in BLOB Column                                         | 1       | 70 min       | 238                | 6 MB             | 12%                 |
+|                                                                | 2       | 38 min       | 436                | 10 MB            | 24%                 |
+|                                                                | 4       | 21 min       | 776                | 18 MB            | 38%                 |
+|                                                                | 8       | 13 min       | 1288               | 30 MB            | 64%                 |
+|                                                                | 16      | 10 min       | 1686               | 39 MB            | 94%                 |
+| 2. JSON in BLOB column with OSON format                        | 1       | 64 min       | 259                | 6 MB             | 14%                 |
+|                                                                | 2       | 33 min       | 508                | 12 MB            | 37%                 |
+|                                                                | 4       | 18 min       | 961                | 22 MB            | 52%                 |
+|                                                                | 8       | 11 min       | 1538               | 36 MB            | 85%                 |
+|                                                                | 16      | 13 min       | 1329               | 31 MB            | 99%                 |
+| 3. JSON in BLOB column with OSON format and medium compression | 1       | 43 min       | 392                | 9 MB             | 25%                 |
+|                                                                | 2       | 31 min       | 537                | 12 MB            | 36%                 |
+|                                                                | 4       | 16 min       | 1026               | 24 MB            | 68%                 |
+|                                                                | 8       | 13 min       | 1319               | 31 MB            | 95%                 |
+|                                                                | 16      | 17 min       | 991                | 23 MB            | 98%                 |
 
 And here you can see the load performance as a chart, with Records per second on the
 Y-axis and Threads (Level of Parallelism) on Y-axis.
 
 ![Load Peformance](/images/2022-09-30-json-in-autonomous-database/overall-throughput.png)
+
+And on this chart you can see average ADW CPU Utilization during the load. Compute CPU
+Utilization is not shown as it never reached more than 40% and the load was clearly not
+constraint by the Compute.
+
+![Load ADW Utilization](/images/2022-09-30-json-in-autonomous-database/adw-utilization-throughput.png)
 
 The 3rd scenario with JSON data in OSON format and medium compression provides the best
 load performance which scales well up to 8 parallel threads on 1 OCPU ADW instance. For
@@ -249,25 +255,31 @@ every thread the query was executed 8 times. Note the query has to read and pars
 million JSON documents to get the required results.
 
 
-| Scenario                                                        | Threads | Elapsed time | Query duration | Number of queries | Queries per 10 minutes |
-| :------------------------------------------                     | ------: | -----------: | -------------: | ----------------: | ---------------------: |
-| 1. JSON in BLOB Column                                          | 1       | 76 min       | 10 min         | 8                 | 1.05                   |
-|                                                                 | 2       | 74 min       | 9 min          | 16                | 2.17                   |
-|                                                                 | 4       | 79 min       | 10 min         | 32                | 4.05                   |
-|                                                                 | 8       | 151 min      | 19 min         | 64                | 4.24                   |
-| 2. JSON in BLOB column with OSON format                         | 1       | 63 min       | 8 min          | 8                 | 1.26                   |
-|                                                                 | 2       | 61 min       | 8 min          | 16                | 2.62                   |
-|                                                                 | 4       | 73 min       | 9 min          | 32                | 4.40                   |
-|                                                                 | 8       | 108 min      | 13 min         | 64                | 5.93                   |
-| 3. JSON in BLOB column with OSON format and medium compression  | 1       | 66 min       | 8 min          | 8                 | 1.22                   |
-|                                                                 | 2       | 58 min       | 7 min          | 16                | 2.75                   |
-|                                                                 | 4       | 62 min       | 8 min          | 32                | 5.19                   |
-|                                                                 | 8       | 132 min      | 16 min         | 64                | 4.85                   |
+| Scenario                                                        | Threads | Elapsed time | Query duration | Number of queries | Queries per 10 minutes | ADW CPU Utilization |
+| :------------------------------------------                     | ------: | -----------: | -------------: | ----------------: | ---------------------: | ------------------: |
+| 1. JSON in BLOB Column                                          | 1       | 76 min       | 10 min         | 8                 | 1.05                   | 26%                 |
+|                                                                 | 2       | 74 min       | 9 min          | 16                | 2.17                   | 49%                 |
+|                                                                 | 4       | 79 min       | 10 min         | 32                | 4.05                   | 89%                 |
+|                                                                 | 8       | 151 min      | 19 min         | 64                | 4.24                   | 99%                 |
+| 2. JSON in BLOB column with OSON format                         | 1       | 63 min       | 8 min          | 8                 | 1.26                   | 24%                 |
+|                                                                 | 2       | 61 min       | 8 min          | 16                | 2.62                   | 42%                 |
+|                                                                 | 4       | 73 min       | 9 min          | 32                | 4.40                   | 72%                 |
+|                                                                 | 8       | 108 min      | 13 min         | 64                | 5.93                   | 98%                 |
+| 3. JSON in BLOB column with OSON format and medium compression  | 1       | 66 min       | 8 min          | 8                 | 1.22                   | 27%                 |
+|                                                                 | 2       | 58 min       | 7 min          | 16                | 2.75                   | 51%                 |
+|                                                                 | 4       | 62 min       | 8 min          | 32                | 5.19                   | 90%                 |
+|                                                                 | 8       | 132 min      | 16 min         | 64                | 4.85                   | 98%                 |
 
 And here you can see the query performance as a chart, with Queries per 10 minutes on the
 Y-axis and Threads (Level of Parallelism) on Y-axis.
 
 ![Query Peformance](/images/2022-09-30-json-in-autonomous-database/overall-queries.png)
+      
+Average ADW CPU Utilization during the query testing is on the next chart. Single query
+requires approximately 25% of the ADW OCPU. Compute CPU Utilization is not shown as it was
+negligible (about 1%) - all the query processing was done by ADW.
+
+![Query ADW Utilization](/images/2022-09-30-json-in-autonomous-database/adw-utilization-queries.png)
 
 The 3rd scenario with JSON data in OSON format and medium compression provides the best
 query performance which scales well up to 4 parallel threads on 1 OCPU ADW instance. For
