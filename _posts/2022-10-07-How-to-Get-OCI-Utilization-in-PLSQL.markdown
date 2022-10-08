@@ -3,11 +3,11 @@
 
 # __Introduction__
 
-A nice thing in Oracle Cloud Infrastructure (OCI) and most other public clouds is that
-many useful services are available automatically as part of the cloud platform. One of
-these services is OCI Monitoring, which collects metrics data from other OCI services,
-aggregates them and notifies users when resource specific alarms are triggered. Metrics
-data from OCI Monitoring may be consumed via OCI Console, OCI CLI, or OCI API/SDK.
+A nice thing in Oracle Cloud Infrastructure (OCI) is that many useful services are
+available automatically as part of the cloud platform. One of these services is OCI
+Monitoring, which collects metrics data from other OCI services, aggregates them and
+notifies users when resource specific alarms are triggered. Metrics data from OCI
+Monitoring may be consumed via OCI Console, OCI CLI, or OCI API/SDK.
 
 During a recent testing of JSON documents in Autonomous Data Warehouse (ADW) I wanted to
 correlate observed loading and query throughputs with the CPU utilization of OCI resources
@@ -51,8 +51,8 @@ OCI Monitoring programmatically:
 # __OCI CLI__
 
 With the above information I tested the metrics retrieval via OCI CLI. I used OCI Cloud
-Shell because it contains OCI CLI preinstalled, including credentials and other parameters
-needed for connecting to OCI API.
+Shell because it contains OCI CLI preinstalled, including credentials needed for
+connecting to OCI API.
 
 ```
  oci monitoring metric-data summarize-metrics-data \
@@ -123,10 +123,10 @@ Console Metrics Explorer.
 
 # __OCI PLSQL SDK__
 
-Now I understand the shape of metrics data returned by OCI Monitoring, I can use the same
-query in ADW database with OCI PLSQL SDK. However, I need to get an average across the
-specified interval, not a list of averages with the defined frequency. To do that, I wrote
-a simple Function that retrieves metrics datapoints with 1 minute frequency and it
+Now as I understand the shape of metrics data returned by OCI Monitoring, I can use the
+same query in ADW database with OCI PLSQL SDK. However, I need to get an average across
+the specified interval, not a list of averages with the defined frequency. To do that, I
+wrote a simple Function that retrieves metrics datapoints with 1 minute frequency and it
 calculates the average from the datapoints.
 
 The function parameters contain all the required parameters for the OCI Monitoring API.
@@ -275,6 +275,14 @@ and types used by the code. In our example it means the following objects:
   * `dbms_cloud_oci_mn_monitoring_summarize_metrics_data_response_t` (type)
   * `dbms_cloud_oci_monitoring_aggregated_datapoint_tbl` (type)
   * `dbms_cloud_oci_mn_monitoring` (package)
+
+
+# __Resources__
+
+* OCI Monitoring documentation is available here: [OCI Monitoring Overview](https://docs.oracle.com/en-us/iaas/Content/Monitoring/Concepts/monitoringoverview.htm).
+* OCI CLI commands for OCI Monitoring are described here: [OCI CLI for OCI Monitoring](https://docs.oracle.com/en-us/iaas/tools/oci-cli/3.18.1/oci_cli_docs/cmdref/monitoring.html).
+* OCI PLSQL SDK functions and types for OCI Monitoring are described here: [OCI PLSQL SDK for OCI Monitoring](https://docs.oracle.com/en-us/iaas/pl-sql-sdk/doc/monitoring-package.html).
+
 
 
 
