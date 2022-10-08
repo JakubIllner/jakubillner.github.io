@@ -229,19 +229,19 @@ when my tests were running.
 
 ```
 select
-  scenario_short
-, trunc(sum(target_records)/max(elapsed_sec_load),0) as records_per_second
-, to_char(min(start_datetime),'YYYY/MM/DD HH24:MI:SS') as start_datetime
-, to_char(max(end_datetime),'YYYY/MM/DD HH24:MI:SS') as end_datetime
-, trunc(my_oci_metrics.get_average_cpu_utilization (
-    p_credential_name  => '<Credential Name>'
-  , p_region           => 'uk-london-1'
-  , p_compartment_id   => '<Compartment OCID>'
-  , p_namespace_name   => 'oci_autonomous_database'
-  , p_metric_name      => 'CpuUtilization'
-  , p_resource_ocid    => '<Resource OCID>'
-  , p_start_time       => min(start_datetime)
-  , p_end_time         => max(end_datetime)
+  scenario_short,
+  trunc(sum(target_records)/max(elapsed_sec_load),0) as records_per_second,
+  to_char(min(start_datetime),'YYYY/MM/DD HH24:MI:SS') as start_datetime,
+  to_char(max(end_datetime),'YYYY/MM/DD HH24:MI:SS') as end_datetime,
+  trunc(my_oci_metrics.get_average_cpu_utilization (
+    p_credential_name  => '<Credential Name>',
+    p_region           => 'uk-london-1',
+    p_compartment_id   => '<Compartment OCID>',
+    p_namespace_name   => 'oci_autonomous_database',
+    p_metric_name      => 'CpuUtilization',
+    p_resource_ocid    => '<Resource OCID>',
+    p_start_time       => min(start_datetime),
+    p_end_time         => max(end_datetime)
 ),2) as avg_cpu_util
 from test_results
 group by scenario_short
