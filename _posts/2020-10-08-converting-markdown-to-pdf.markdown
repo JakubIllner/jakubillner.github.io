@@ -1,5 +1,4 @@
 ---
-layout: post_markdown
 title: Converting Markdown Documents to PDF
 description: How to easily convert Markdown documents into PDF using pandoc and wkhtmltopdf
 ---
