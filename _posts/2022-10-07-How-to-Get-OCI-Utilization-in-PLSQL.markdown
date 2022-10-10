@@ -1,3 +1,8 @@
+---
+title: How to Get OCI Resource Utilization in PLSQL
+description: How to retrieve CPU utilization of OCI resources in PLSQL.
+---
+
 
 ![Intro Picture](/images/2022-10-07-how-to-get-oci-utilization-in-plsql/rybnik.jpg)
 

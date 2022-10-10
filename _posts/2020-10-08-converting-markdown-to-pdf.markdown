@@ -1,7 +1,8 @@
 ---
 title: Converting Markdown Documents to PDF
-description: How to easily convert Markdown documents into PDF using pandoc and wkhtmltopdf
+description: How to easily convert Markdown documents into PDF using pandoc and wkhtmltopdf.
 ---
+
 
 ![Intro Picture](/images/2020-10-08-converting-markdown-to-pdf/lekarna-Kuks.jpg)
 

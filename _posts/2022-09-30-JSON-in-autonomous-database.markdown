@@ -1,3 +1,8 @@
+---
+title: Options for Storing Large JSON Documents in Autonomous Database
+description: Comparison of options for storing large, complex JSON documents in Oracle Autonomous Database.
+---
+
 
 ![Intro Picture](/images/2022-09-30-json-in-autonomous-database/marsh.jpg)
 

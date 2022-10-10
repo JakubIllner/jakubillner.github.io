@@ -1,3 +1,8 @@
+---
+title: Private Hybrid DNS in OCI
+description: How to configure private DNS in OCI for hybrid DNS scenarios.
+---
+
 
 ![Intro Picture](/images/2022-08-05-private-hybrid-dns-in-oci/oder.jpg)
 
