@@ -4,7 +4,7 @@ description: How to map and flatten nested JSON documents in OCI Data Integratio
 ---
 
 
-![Intro Picture](/images/2022-10-20-flattening-json-documents-with-di/white-sands.jpg)
+![Intro Picture](/images/2022-10-20-flattening-json-documents-with-di/white-sands.JPG)
 
 # __Introduction__
 
