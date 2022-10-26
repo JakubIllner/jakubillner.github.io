@@ -178,18 +178,18 @@ the Landing Area.
 * `OUTPUT_OBJECT_NAME_NUMBERS` - Name of the target file with `phone_numbers` (including the prefix).
 
 
-## Data Source (SOURCE)
+## Data Source
 
-The Source operator maps Object Storage asset, using parameters for Bucket and Data entity
+The Source operator `SOURCE` maps Object Storage asset, using parameters for Bucket and Data entity
 (i.e., object name). It also specifies the source type as JSON Lines, though this is not
 visible on the picture.
 
 ![Data Source](/images/2022-10-20-flattening-json-documents-with-di/di-1-source.jpg)
 
 
-## Mapping of Attributes from JSON Objects (EXP_TOP)
+## Mapping of Attributes from JSON Objects
 
-Top level attributes from JSON objects (not arrays) are selected with Expression operator.
+Top level attributes from JSON objects (not arrays) are selected with Expression operator `EXP_TOP`.
 JSON attributes are mapped using a simple dot notation. Note we can select attributes from
 multiple JSON objects (e.g., `invoice_details` and `payment_details`) in a single operator.
 Attributes are also converted to required data types. This includes specifying length of
@@ -199,9 +199,9 @@ attributes.
 ![Mapping of Attributes](/images/2022-10-20-flattening-json-documents-with-di/di-2-expression-top.jpg)
 
 
-## Flattening of JSON Arrays (FLT_LINES)
+## Flattening of JSON Arrays
 
-JSON arrays have to transformed into rows using the new Flatten operator. In the Flatten
+JSON arrays have to transformed into rows using the Flatten operator `FLT_LINES`. In the Flatten
 operator, it is necessary to specify the node from which the flattening happens (in our
 case node `invoice_lines`), and the operator transforms the array for this node into rows.
 The Flatten operator does not support mapping of data types for output attributes; for
@@ -210,9 +210,9 @@ this we need another Expression operator `EXP_LINES`.
 ![Flattening of JSON Arrays](/images/2022-10-20-flattening-json-documents-with-di/di-3-flatten-lines.jpg)
 
 
-## Data Target (SAVE_LINES)
+## Data Target
 
-The last step is writing the output file. The target data asset is Object Storage, with
+The last step is writing the output file via Target operator `SAVE_LINES`. The target data asset is Object Storage, with
 parameters specifying Bucket and Data entity. The target format is Parquet with Snappy
 compression (not shown on the picture). I have also specified that the output should be
 created as a single file. This is slower than creating multiple files, but perfectly
