@@ -1,5 +1,5 @@
 ---
-title: Flattening JSON documents with OCI Data Integration
+title: Mapping JSON documents with OCI Data Integration
 description: How to map and flatten nested JSON documents in OCI Data Integration.
 ---
 
