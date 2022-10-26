@@ -28,9 +28,11 @@ dates or timestamps.
 
 __This post shows how you can use Oracle Cloud Infrastructure (OCI) Data Integration
 service to transform large and complex JSON documents to data format suitable for
-analytics.__ Note that OCI Data Integration is a managed service that can be used to
-develop and schedule ETL tasks such as ingesting data from sources; cleansing,
-transforming, and reshaping that data; and loading data to target data assets.
+analytics.__
+
+OCI Data Integration is a managed service that can be used to develop and schedule ETL
+tasks such as ingesting data from sources; cleansing, transforming, and reshaping that
+data; and loading data to target data assets.
 
 
 # __Transformation Scenario__
