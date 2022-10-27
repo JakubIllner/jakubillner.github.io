@@ -134,6 +134,53 @@ Example of the JSON document with artificially generated data is below.
 ```
 
 
+# __Required Transformation__
+
+The transformation should produce two entities:
+
+* __Invoice Lines__ entity, with attributes from `invoice_details` and `payment_details`
+objects, and flattened `invoice_lines` array. For the JSON document above, this data set
+consist of 8 rows (number of elements in the array).
+
+* __Phone Numbers__ entity, with attributes from `invoice_details` and `payment_details`
+objects, and flattened `phone_numbers` array and flattened `phone_consumption` sub-array.
+For the JSON document above, this data set will consist of 16 rows (number of elements in
+the sub-array).
+
+Mapping for __Invoice Lines__ entity is as follows:
+
+| Target Column                  | Data Type      | Mapping from JSON                                |
+| :-------------------           | :------------- | :----------------------------------------------- |
+| INVOICE_NUMBER                 | VARCHAR(40)    | invoice_details.invoice_number                   |
+| CUSTOMER_NUMBER                | VARCHAR(40)    | invoice_details.customer_number                  |
+| INVOICE_DATE                   | DATE           | invoice_details.invoice_date                     |
+| INVOICE_PERIOD_START_DATE      | DATE           | invoice_details.period_start_date                |
+| INVOICE_PERIOD_END_DATE        | DATE           | invoice_details.period_end_date                  |
+| PAYMENT_DUE_DATE               | DATE           | payment_details.due_date                         |
+| PAYMENT_CURRENCY               | VARCHAR(10)    | payment_details.payment_currency                 |
+| PAYMENT_AMOUNT                 | DECIMAL(12,2)  | payment_details.payment_amount                   |
+| INVOICE_LINE_CODE              | VARCHAR2(80)   | invoice_lines[].line_code                        |
+| INVOICE_LINE_AMOUNT            | DECIMAL(12,2)  | invoice_lines[].line_amount                      |
+
+And mapping for __Phone Numbers__ entity is as follows:
+
+| Target Column                  | Data Type      | Mapping from JSON                                |
+| :-------------------           | :------------- | :----------------------------------------------- |
+| INVOICE_NUMBER                 | VARCHAR(40)    | invoice_details.invoice_number                   |
+| CUSTOMER_NUMBER                | VARCHAR(40)    | invoice_details.customer_number                  |
+| INVOICE_DATE                   | DATE           | invoice_details.invoice_date                     |
+| INVOICE_PERIOD_START_DATE      | DATE           | invoice_details.period_start_date                |
+| INVOICE_PERIOD_END_DATE        | DATE           | invoice_details.period_end_date                  |
+| PAYMENT_DUE_DATE               | DATE           | payment_details.due_date                         |
+| PAYMENT_CURRENCY               | VARCHAR(10)    | payment_details.payment_currency                 |
+| PAYMENT_AMOUNT                 | DECIMAL(12,2)  | payment_details.payment_amount                   |
+| PHONE_NUMBER_NAME              | VARCHAR(80)    | phone_numbers[].number_name                      |
+| PHONE_NUMBER_COUNTRY_CODE      | VARCHAR(10)    | phone_numbers[].country_code                     |
+| PHONE_NUMBER                   | VARCHAR(40)    | phone_numbers[].phone_number                     |
+| PHONE_LINE_CODE                | VARCHAR(40)    | phone_numbers[].phone_consumption[].line_code    |
+| PHONE_LINE_AMOUNT              | DECIMAL(12,2)  | phone_numbers[].phone_consumption[].line_amount  |
+
+
 # __Transformation Walk-Through__
 
 ## Data Flow
