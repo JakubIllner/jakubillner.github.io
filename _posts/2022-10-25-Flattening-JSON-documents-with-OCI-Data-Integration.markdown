@@ -1,5 +1,5 @@
 ---
-title: Mapping JSON documents with OCI Data Integration
+title: Transforming JSON documents with OCI Data Integration
 description: How to map and flatten nested JSON documents in OCI Data Integration.
 ---
 
@@ -26,13 +26,14 @@ stored in a Data Pool Area. The transformations typically include unnesting of J
 records, flattening of JSON arrays, and transforming strings to target data types such as
 dates or timestamps.
 
+OCI Data Integration is a managed service that can be used to develop and schedule ETL
+tasks such as ingesting data from sources; cleansing, transforming, and reshaping that
+data; and loading data to target data assets. Recently, OCI Data Integration added Flatten
+operator to its portfolio to simplify processing of JSON documents.
+
 __This post shows how you can use Oracle Cloud Infrastructure (OCI) Data Integration
 service to transform large and complex JSON documents to data format suitable for
 analytics.__
-
-OCI Data Integration is a managed service that can be used to develop and schedule ETL
-tasks such as ingesting data from sources; cleansing, transforming, and reshaping that
-data; and loading data to target data assets.
 
 
 # __Transformation Scenario__
@@ -180,43 +181,43 @@ the Landing Area.
 
 ## Data Source
 
-The Source operator `SOURCE` maps Object Storage asset, using parameters for Bucket and Data entity
-(i.e., object name). It also specifies the source type as JSON Lines, though this is not
-visible on the picture.
+The Source operator `SOURCE` maps Object Storage asset, using parameters for Bucket and
+Data entity (i.e., object name). It also specifies the source type as JSON Lines, though
+this is not visible on the picture.
 
 ![Data Source](/images/2022-10-20-flattening-json-documents-with-di/di-1-source.jpg)
 
 
 ## Mapping of Attributes from JSON Objects
 
-Top level attributes from JSON objects (not arrays) are selected with Expression operator `EXP_TOP`.
-JSON attributes are mapped using a simple dot notation. Note we can select attributes from
-multiple JSON objects (e.g., `invoice_details` and `payment_details`) in a single operator.
-Attributes are also converted to required data types. This includes specifying length of
-string atributes, precision of numerical attributes, and conversion of date and timestamp
-attributes.
+Top level attributes from JSON objects (not arrays) are selected with Expression operator
+`EXP_TOP`. JSON attributes are mapped using a simple dot notation. Note we can select
+attributes from multiple JSON objects (e.g., `invoice_details` and `payment_details`) in a
+single operator. Attributes are also converted to required data types. This includes
+specifying length of string atributes, precision of numerical attributes, and conversion
+of date and timestamp attributes.
 
 ![Mapping of Attributes](/images/2022-10-20-flattening-json-documents-with-di/di-2-expression-top.jpg)
 
 
 ## Flattening of JSON Arrays
 
-JSON arrays have to transformed into rows using the Flatten operator `FLT_LINES`. In the Flatten
-operator, it is necessary to specify the node from which the flattening happens (in our
-case node `invoice_lines`), and the operator transforms the array for this node into rows.
-The Flatten operator does not support mapping of data types for output attributes; for
-this we need another Expression operator `EXP_LINES`.
+JSON arrays have to transformed into rows using the Flatten operator `FLT_LINES`. In the
+Flatten operator, it is necessary to specify the node from which the flattening happens
+(in our case node `invoice_lines`), and the operator transforms the array for this node
+into rows. The Flatten operator does not support mapping of data types for output
+attributes; for this we need another Expression operator `EXP_LINES`.
 
 ![Flattening of JSON Arrays](/images/2022-10-20-flattening-json-documents-with-di/di-3-flatten-lines.jpg)
 
 
 ## Data Target
 
-The last step is writing the output file via Target operator `SAVE_LINES`. The target data asset is Object Storage, with
-parameters specifying Bucket and Data entity. The target format is Parquet with Snappy
-compression (not shown on the picture). I have also specified that the output should be
-created as a single file. This is slower than creating multiple files, but perfectly
-acceptable for my scenario.
+The last step is writing the output file via Target operator `SAVE_LINES`. The target data
+asset is Object Storage, with parameters specifying Bucket and Data entity. The target
+format is Parquet with Snappy compression (not shown on the picture). I have also
+specified that the output should be created as a single file. This is slower than creating
+multiple files, but perfectly acceptable for my scenario.
 
 ![Data Target](/images/2022-10-20-flattening-json-documents-with-di/di-4-target-lines.jpg)
 
@@ -297,9 +298,15 @@ other operators for more complex transformations, e.g., enriching the data set b
 reference data, aggregating metrics, or pivoting results. Also, the target could be
 database table instead of file in Object Storage.
 
-Currently, the support for nested JSON documents is limited to source files in an Object Storage.
-JSON documents stored in a database such as Oracle Autonomous JSON Database are not
-supported. I hope this limitation will be removed in the future and the JSON processing
-will be applicable to all kind of sources supported by OCI Data Integration.
+Currently, the support for nested JSON documents is limited to source files in an Object
+Storage. JSON documents stored in a database such as Oracle Autonomous JSON Database are
+not supported. I hope this limitation will be removed in the future and the JSON
+processing will be applicable to all kind of data assets supported by OCI Data
+Integration.
 
+
+# __Resources__
+
+* OCI Data Integration documentation is available here: [OCI Data Integration Overview](https://docs.oracle.com/en-us/iaas/data-integration/home.htm).
+* Blog announcing the availability of Flatten operator is here: [New Oracle Cloud Infrastructure Data Integration release](https://blogs.oracle.com/cloud-infrastructure/post/oci-data-integration-support-rest-sources)
 
