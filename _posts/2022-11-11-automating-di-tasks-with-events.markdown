@@ -69,7 +69,7 @@ the red color.
 ![Integration Scenario](/images/2022-11-11-automating-di-tasks-with-events/automating-di-tasks-with-events-data-flow.png)
 
 
-# __Executing OCI DI from Cloud Shell__
+# __Executing OCI DI Task from Cloud Shell__
 
 Before discussing the automation flow, let's look at how OCI Data Integration task may be
 executed from OCI CLI. OCI CLI in Cloud Shell is great environment to prototype unfamiliar
@@ -142,65 +142,59 @@ bindings for other types of parameters:
 # __Executing OCI DI Task from OCI Function__
 
 Now that we understand what are all the parameters required to run OCI DI Task
-programmatically, we can do the same from an OCI Function.
+programmatically, we can do the same from an OCI Function. This is more complicated than
+using OCI CLI, as we have to not only write the function, but also configure function
+security, deploy the function, define configuration parameters, and integrate the function
+with OCI Events.
 
-This is more complicated than using OCI CLI, as we have to not only write the Function,
-but also configure Function security, deploy the Function, define configuration
-parameters, and integrate the Function with OCI Events.
+Note this post does not describe all the configuration steps required to create OCI
+Functions. Particularly, it assumes you already have privileges for managing OCI Functions
+and Registry; that you configured Fn Project on Cloud Shell; and created Fuction
+Application. For these steps, please refer to
+[Functions QuickStart on Cloud Shell](https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionsquickstartcloudshell.htm#functionsquickstart_cloudshell),
+or instructions in OCI Functions Console, under the Getting Started tab.
 
 
 ## __Security Configuration__
 
-An OCI Function that will run an OCI Data Integration task must be authenticated and
-authorized by OCI IAM.
+An OCI Function that will run an OCI DI Task must be authenticated and authorized by OCI
+IAM.
 
-The recommended authentication method is via resource principal. The Function is included
-into a Dynamic Groups and privileges are assigned to the Dynamic Group. With this
-approach, the Function becomes a "principal" that can call various OCI APIs depending on
-the privileges of the Dynamic Group.
+The recommended authentication method is via resource principal, which does not require
+authentication tokens or signing keys. Instead, the function is included into a Dynamic
+Group using a rule, and it "inherits" privileges assigned to the Dynamic Group. With this
+approach, the function becomes a principal that can call various OCI APIs depending on the
+privileges of the Dynamic Group.
 
 
 ### Dynamic Group
 
-I created a Dynamic Group with the rule that includes all Functions in the specified
-compartment.
+I used a Dynamic Group with the rule that includes all Functions in the specified
+compartment. Note the rule could be more specific - I could use OCID of a particular
+function or specify tags of functions that will be included in the Dynamic Group.
 
 ```
 ALL {resource.type = 'fnfunc', resource.compartment.id = '<Compartment OCID>'}
 ```
 
-Note the rule could be more specific, for example by using OCID of a particular function
-or by specifying tags of functions that will be included in the Dynamic Group.
-
 
 ### Policy
 
-I also defined a Policy that allows execution of OCI DI Tasks for all instances in the
-Dynamic Group. The statement is restricted to the defined OCI DI Workspace. The
-`request.permission` rule allows execution of tasks only; other Workspace operations are
-prohibited.
+The policy allows Functions in the Dynamic Group to use the OCI DI Workspace with the Task
+we want to run. Using the `request.permission` condition I restricted usage of the
+Workspace to execution of Tasks only.
 
 ```
-allow dynamic-group <Dynamic Group> to use dis-workspaces in compartment <Compartment> where all {target.workspace.id = '<DI Workspace OCID>', request.permission = 'DIS_WORKSPACE_OBJECT_EXECUTE'}
+allow dynamic-group <Dynamic Group> to use dis-workspaces in compartment <Compartment Name> where all {target.workspace.id = '<DI Workspace OCID>', request.permission = 'DIS_WORKSPACE_OBJECT_EXECUTE'}
 ```
-
-Note the policy could be more specific by defining an OCI DI Application, in addition to
-Workspace.
 
 
 ## __Function Configuration__
 
 OCI Functions support writing code in Java, Python, Node, Go, Ruby, and C#. I decided to
-use Python, because of familiarity with both the language and OCI Python SDK.
-
-As OCI Functions is based on Fn Project, I used `fn` client to initialize, deploy and
-configure the Function. The easiest way to do so is to use Cloud Shell, because it
-contains Fn Project client already preinstalled.
-
-Note this section assumes the Fn Project is already configured on the Cloud Shell and the
-Function Application `sandbox-london-fnapp` is created. If not, please refer to
-[Functions QuickStart on Cloud Shell](https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionsquickstartcloudshell.htm#functionsquickstart_cloudshell),
-or instructions in OCI Functions Console, under the Getting Started tab.
+use Python, because of familiarity with both the language and OCI Python SDK. I used Fn
+Project client to initialize, deploy and configure the function. The easiest way to do so
+is via Cloud Shell which comes with Fn Project client preinstalled.
 
 
 ### Initial Deployment
@@ -224,10 +218,10 @@ Registry (OCIR), and deployes to OCI Functions.
 
 ### Libraries
 
-In the next step I extended the file `requirements.txt` with list of required Python
-libraries. This file must contain not just `fdk` with Fn Project function development kit
-for Python, but also `oci` module, which contains OCI Python SDK. Note that other standard
-modules like `io` or `logging` are included by default and do not have to be listed.
+In the next step I extended the file `requirements.txt`. This file must contain not just
+`fdk` with Fn Project function development kit for Python, but also `oci` module, which
+contains OCI Python SDK. Note that other standard modules like `io`, `json`, or `logging`
+are included by default and do not have to be listed.
 
 ```
 fdk>=0.1.48
@@ -254,20 +248,18 @@ fn config function sandbox-london-fnapp fn-flatten-with-di target_prefix_numbers
 fn config function sandbox-london-fnapp fn-flatten-with-di target_suffix         'parquet'
 ```
 
-Note I defined the configuration parameters on the level of Function. The parameters may
-be also defined on the level of Function Application; in this case they are visible to all
-Functions in the Application.
+Configuration parameters may be also defined and reviewed in OCI Console.
+
+[Configuration Parameters](/images/2022-11-11-automating-di-tasks-with-events/function-configuration.jpg)
 
 
 ### Logging
 
-To understand the behaviour of the function I highly recommend enabling logging. Without
-logging you have no way to debug the function and view errors and information messages.
-
-Logging is enabled on the level of Function Application. The default logging target is OCI
-Logging service. When you enable logging, you have to specify Compartment where to create logs,
-Log Group, and Log Name. Once this is done, you can use Log Search to see the output from
-the function.
+To debug and tune the function I highly recommend enabling logging. Without logging you
+have no way to view errors and information messages. Logging is enabled on the level of
+function application. The default logging target is OCI Logging service. When you enable
+logging, you have to specify Compartment where to create logs, Log Group, and Log Name.
+Once this is done, you can use Log Search to see the output from the function.
 
 ![Logging Setup](/images/2022-11-11-automating-di-tasks-with-events/function-logs-setup.jpg)
 
@@ -275,12 +267,10 @@ the function.
 ## __Function Walkthrough__
 
 In this chapter I describe the function code which replaces `func.py` file created in the
-initial deployment. The code is broken into several logical sections for easier
-understanding.
-
-I tested that the code works as expected, however it is not of production quality.
-Particularly, it does not contain any error handling and I did not test most of error
-conditions.
+[Initial Deployment](#initial-deployment). The code is broken into several logical
+sections for easier understanding. I tested that the code works as expected, however it is
+not of production quality. Particularly, it does not contain any error handling and I did
+not test most of error conditions.
 
 
 ### Modules
@@ -314,13 +304,13 @@ in the `func.yaml` file and it may be redefined if required.
 def handler (ctx, data: io.BytesIO=None):
 ```
 
-* `ctx` contains static configuration parameters as defined above.
+* `ctx` contains static configuration parameters.
 * `data` is the data stream with the payload information.
 
 
 ### Retrieve Configuration Parameters
 
-Configuration parameters are provided as Python dictionary. The following code retrieves
+Configuration parameters are available as Python dictionary. The following code retrieves
 parameter values from the configuration. It also validates all the parameters are defined.
 
 ```
@@ -342,13 +332,12 @@ parameter values from the configuration. It also validates all the parameters ar
 
 ### Retrieve Runtime Parameters
 
-Runtime parameters are provided by the Event. When an event is triggered, it provides to
-the function a JSON document with parameters describing the event. The parameters differ
-for every type of service and event.
-
-In our case, the service is Object Storage and the event is Object Create. This event
-provides information about compartment, bucket, and object that was created in the
-compartment. The following code retrieves the required parameters from the event.
+Runtime parameters are provided by the event. When an event is triggered, it executes the
+function with a payload consisting of JSON document with parameters describing the event.
+The parameters differ for every type of service and event. In our case, the service is
+Object Storage and the event is Object Create. Example of the JSON document with the
+payload is described in [Sample Event Payload](#sample-event-payload). The following code
+retrieves the required parameters from the event.
 
 ```
     # Get event parameters
@@ -368,11 +357,9 @@ compartment. The following code retrieves the required parameters from the event
 
 Before invoking DI Integration Task, we need to make sure the event was raised for the
 right object. The bucket may contain data from many entities, but we need to run the task
-only for "Invoice" entity.
-
-Therefore, the next step checks whether the object name matches the required pattern.
-After this check, it retrieves part of the source object name that will be used to
-construct target object.
+only for the "Invoice" entity. The next step checks whether the object name matches the
+required pattern. After the check, it retrieves part of the source object name that will
+be used to construct target object.
 
 ```
     # Check that object name matches pattern
@@ -408,7 +395,9 @@ signer, which does not need any parameter.
 
 And finally, we can invoke OCI Data Integration Task via `create_task_run()` function. The
 tricky part is to create parameter bindings, which are needed to pass parameters from
-Configuration and from Runtime payload to the Task.
+Configuration and from Runtime payload to the Task. The logic of bindings is the same
+as when using OCI CLI (see [Executing OCI DI from Cloud Shell](#executing-oci-di-from-cloud-shell)),
+but it is necessary to use SDK's models instead of JSON string.
 
 ```
     # Define parameters to run OCI DI task
@@ -437,14 +426,6 @@ Configuration and from Runtime payload to the Task.
     )
 ```
 
-* `RegistryMetadata()` creates object with `aggregator_key`. This is used to specify DI Task Key.
-* `CreateConfigProvider()` creates object with parameter bindings.
-* `ParameterValue(simple_value)` creates parameter value for simple string parameters.
-* `ParameterValue(root_object_value)` is used for more complex parameters such as Schema.
-Note the syntax for `key`, where we have to construct string containing `dataref:` prefix
-and values for both DI Connection Key and name of Object Storage bucket.
-* `CreateTaskRunDetails` combines registry metadata with config provider.
-
 
 ### Return Result
 
@@ -457,31 +438,31 @@ The last step is to return the response which FDK expects.
 ```
 
 
-# __Integrating OCI Function with OCI Events__
+# __Invoking OCI Function from OCI Events__
 
-Functions may be executed manually from OCI CLI or by invoking the Function endpoint. In
-our case, we need to invoke the Function automatically, by Event triggered when an object
-arrives in the Object Storage.
+OCI Functions may be called manually from OCI CLI, or programatically from OCI SDK/API or
+by making signed HTTPS request to the function endpoint. Also, functions may be executed
+by many OCI services. In our case, we need to invoke the function automatically, by event
+triggered when an object arrives in the Object Storage.
 
 
 ## Object Level Events
 
 Object Storage does not emit object level events by default. On the bucket level, it is
-necessary to enable emiting events, as you can see on the screenshot.
+necessary to enable emiting events.
 
 ![Enable Emit Events](/images/2022-11-11-automating-di-tasks-with-events/bucket-emit-events.jpg)
 
 
 ## Event Rule
 
-When the Function is defined and deployed and the Bucket is configured to emit events, I
-can configure Event Rule. The Event Rule will invoke function `fn-flatten-with-di`
-whenever an object is created or updated in the Object Storage bucket `landing-area`.
+When the function is defined and deployed and the bucket is configured to emit events, we
+can configure Event Rule. The Event Rule invokes function `fn-flatten-with-di` whenever an
+object is created or updated in the Object Storage bucket `landing-area`. Once the rule is
+saved, the event is active and the function will be invoked for every new or updated
+object in the bucket.
 
 ![Event Rule](/images/2022-11-11-automating-di-tasks-with-events/event-rule.jpg)
-
-Once I save the changes, the event is active and my function will be invoked for every new
-or updated object in the buckt.
 
 
 ## Sample Event Payload
@@ -520,7 +501,7 @@ For Create Object event the payload looks like this:
 ```
 
 
-# __Function Execution__
+# __Testing the Automation Scenario__
 
 ## New Object
 
@@ -555,7 +536,7 @@ the execution in OCI Data Integration.
 
 * The status of the OCI DI Task run is `NOT_STARTED`. This demonstrates the fact that Task
 invocation is asynchronous; the function submits the request, the request is queued, and
-executed by OCI Data Integration sometimes later.
+executed by OCI Data Integration later.
 
 
 ## Task Run
@@ -568,12 +549,25 @@ the function logs.
 ![Task Run Result](/images/2022-11-11-automating-di-tasks-with-events/di-task-run.jpg)
 
 
+# __Final Notes__
+
+Execution of OCI Data Integration tasks by OCI Functions and Events is useful for many use
+cases, such as automated transformation of files in the Object Storage. This post shows
+how you can call DI Task programatically, write OCI Function to invoke the DI Task, pass
+the parameters to the DI Task, and trigger the OCI Function from OCI Event.
+
+In the real-life scenario, you will probably want to extend the OCI Function by more
+parameter checking and error handling, and provide additional debugging messages. You
+might also consider case when single Bucket contains multiple entities and you want to
+invoke different DI Task depending on the entity.
+
+
 # __Resources__
 
 * OCI Data Integration documentation is available here: [OCI Data Integration Overview](https://docs.oracle.com/en-us/iaas/data-integration/home.htm).
-* Post describing invocation of OCI Data Integration tasks from OCI CLI: [Executing Tasks using OCI CLI in Oracle Cloud Infrastructure Data Integration](https://dave-allan-us.medium.com/executing-tasks-using-oci-cli-in-oracle-cloud-infrastructure-data-integration-3042a0d2b9f2).
+* Post describing invocation of OCI Data Integration tasks from OCI CLI from David Allan: [Executing Tasks using OCI CLI in Oracle Cloud Infrastructure Data Integration](https://dave-allan-us.medium.com/executing-tasks-using-oci-cli-in-oracle-cloud-infrastructure-data-integration-3042a0d2b9f2).
 * OCI Functions documentation is available here: [OCI Functions Overview](https://docs.oracle.com/en-us/iaas/Content/Functions/Concepts/functionsoverview.htm)
-* OCI Functions quickstart describing how to use Functions with OCI Cloud Shell: [OCI Functions Quickstart with Cloud Shell](https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionsquickstartcloudshell.htm#functionsquickstart_cloudshell)
+* OCI Functions Quickstart describing how to use Functions with OCI Cloud Shell: [OCI Functions Quickstart with Cloud Shell](https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionsquickstartcloudshell.htm#functionsquickstart_cloudshell)
 * Examples of OCI Functions are available here: [OCI Functions Samples on GitHub](https://github.com/oracle-samples/oracle-functions-samples)
 * OCI Events documentation is available here: [OCI Events Overview](https://docs.oracle.com/en-us/iaas/Content/Events/Concepts/eventsoverview.htm)
 
