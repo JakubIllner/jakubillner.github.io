@@ -158,13 +158,11 @@ or instructions in OCI Functions Console, under the Getting Started tab.
 ## __Security Configuration__
 
 An OCI Function that will run an OCI DI Task must be authenticated and authorized by OCI
-IAM.
-
-The recommended authentication method is via resource principal, which does not require
-authentication tokens or signing keys. Instead, the function is included into a Dynamic
-Group using a rule, and it "inherits" privileges assigned to the Dynamic Group. With this
-approach, the function becomes a principal that can call various OCI APIs depending on the
-privileges of the Dynamic Group.
+IAM. The recommended authentication method is via resource principal, which does not
+require authentication tokens or signing keys. Instead, the function is included into a
+Dynamic Group using a rule, and it "inherits" privileges assigned to the Dynamic Group.
+With this approach, the function becomes a principal that can call various OCI APIs
+depending on the privileges of the Dynamic Group.
 
 
 ### Dynamic Group
@@ -250,7 +248,7 @@ fn config function sandbox-london-fnapp fn-flatten-with-di target_suffix        
 
 Configuration parameters may be also defined and reviewed in OCI Console.
 
-[Configuration Parameters](/images/2022-11-11-automating-di-tasks-with-events/function-configuration.jpg)
+![Configuration Parameters](/images/2022-11-11-automating-di-tasks-with-events/function-configuration.jpg)
 
 
 ### Logging
@@ -396,7 +394,7 @@ signer, which does not need any parameter.
 And finally, we can invoke OCI Data Integration Task via `create_task_run()` function. The
 tricky part is to create parameter bindings, which are needed to pass parameters from
 Configuration and from Runtime payload to the Task. The logic of bindings is the same
-as when using OCI CLI (see [Executing OCI DI from Cloud Shell](#executing-oci-di-from-cloud-shell)),
+as when using OCI CLI (see [Executing OCI DI Task from Cloud Shell](#executing-oci-di-task-from-cloud-shell)),
 but it is necessary to use SDK's models instead of JSON string.
 
 ```
@@ -557,9 +555,9 @@ how you can call DI Task programatically, write OCI Function to invoke the DI Ta
 the parameters to the DI Task, and trigger the OCI Function from OCI Event.
 
 In the real-life scenario, you will probably want to extend the OCI Function by more
-parameter checking and error handling, and provide additional debugging messages. You
-might also consider case when single Bucket contains multiple entities and you want to
-invoke different DI Task depending on the entity.
+checks validating the input parameters, by robust error handling, and by additional
+debugging messages. You might also consider case when single Bucket contains multiple
+entities and you want to invoke different DI Task depending on the entity.
 
 
 # __Resources__
