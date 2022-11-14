@@ -1,5 +1,5 @@
 ---
-title: Event Driven Automation of OCI Integration Tasks
+title: Event Driven Automation of OCI Data Integration Tasks
 description: How to automatically execute OCI Data Integration task with OCI Events and OCI Functions.
 tags:
 - Automation
