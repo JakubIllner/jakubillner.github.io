@@ -463,14 +463,14 @@ Object Storage as data store. The main design rules described in the post are:
 * __Domain Ownership__ - Data Lake consists of multiple, isolated, and independent data domains.
 * __Data as a Product__ - Data is exchanged via Data Products, implemented as entities stored in OCI Object Storage buckets.
 * __Compartments__ - There is one Compartment for every data domain, to provide isolation of domains.
-* __Groups__ - Separate Groups are used for administrators, DataOps, and users of every data domain.
+* __Groups__ - Separate Groups are used for administrators, DataOps engineers, and users of every data domain.
 * __Dynamic Groups__ - Separate Dynamic Groups are used for non-human, data processing agents of every data domain.
 * __Policies__ - Policies apply rules to allow independent development, management, and operations of data domains.
 * __Shared Data Catalog__ - Shared instance of OCI Data Catalog is used to publish information about data products.
-* __Buckets__ - Data Product entities are separated from internal objects by using different Object Storage buckets.
-* __Data Processing__ - Data processiong services are using whatever services or tools are suitable and preferred by the domain team.
+* __Buckets__ - Data Product entities are separated from internal domain objects by using different Object Storage buckets.
+* __Data Processing__ - Data processing services are using whatever services or tools are suitable and preferred by the domain team.
 
-The domains may be geographically separated in different OCI regions or they may located
+The domains may be geographically separated in different OCI regions, or they may located
 within single region only.
 
 Note I have intentionally disregarded the topic of networking for the sake of simplicity.
