@@ -117,7 +117,7 @@ Data domain personas needed for every domain are:
 required by the domain. They are also responsible for providing access to the data product
 to consumers from other domains.
 
-* __Domain DevOps__ - developers and operators of all capabilities of the data domain.
+* __Domain DataOps__ - developers and operators of all capabilities of the data domain.
 They develop and operate ingestion and transformation processes, design data models,
 manage data stores, develop and monitor data products, provide data domain functional
 requirements.
