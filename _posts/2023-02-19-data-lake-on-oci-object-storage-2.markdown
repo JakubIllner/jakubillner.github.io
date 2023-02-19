@@ -116,7 +116,7 @@ are no folders.
 
 So, how to encode Entity, Partition(s), and Files in an Object Name?
 
-The following pattern provides an example for not partitioned entities:
+The following pattern provides an example for non partitioned entities:
 
 ```
 <entity>/<filename>.<suffix>
@@ -159,7 +159,7 @@ automatically, using a framework specific pattern.
 Applying the above patterns to our use case will produce these Object Names:
 
 
-### `dl-subscription-data-bucket` - Subscription data product
+### Subscription data product (`dl-subscription-data-bucket`)
 
 ```
 customer/year=<year>/month=<month>/day=<day>/customer-<timestamp>-<sequence>.parquet
@@ -171,7 +171,7 @@ customer-service/year=<year>/month=<month>/day=<day>/customer-service-<timestamp
 * Subscription data is partitioned by year, month, and day.
 
 
-### `dl-usage-data-bucket` - Usage data product
+### Usage data product (`dl-usage-data-bucket`)
 
 ```
 usage-data/year=<year>/month=<month>/day=<day>/usage-data-<timestamp>-<sequence>.parquet
@@ -183,7 +183,7 @@ usage-sms/year=<year>/month=<month>/day=<day>/usage-sms-<timestamp>-<sequence>.p
 * Usage data is partitioned by year, month, and day based on event timestamp.
 
 
-### `dl-billing-data-bucket` - Billing data product
+### Billing data product (`dl-billing-data-bucket`)
 
 ```
 bill/year=<year>/billingperiod=<billingperiod>/bill-<timestamp>-<sequence>.parquet
@@ -195,7 +195,7 @@ subscription-fee/year=<year>/billingperiod=<billingperiod>/subscription-fee-<tim
 * Billing data is partitioned by year and billing period.
 
 
-### `dl-revassurance-data-bucket` - Revenue Differences data product
+### Revenue Differences data product (`dl-revassurance-data-bucket`)
 
 ```
 revenue-diff/year=<year>/month=<month>/revenue-diff-<timestamp>-<sequence>.parquet
