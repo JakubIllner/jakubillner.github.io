@@ -104,7 +104,8 @@ diagram below.
 
 * Domain has all its Data Products within a single OCI Compartment.
 * Data Product stores all its entities in a single OCI Object Storage Bucket.
-* Since Object Storage namespace is flat, Entities, Partitions, and Files are encoded in the Object Name.
+* Bucket contains OCI Object Storage objects belonging to Entities and Partitions.
+* Names of Entities, Partitions, and Files are encoded in object names.
 
 Note that names of objects in OCI Object Storage often use `/` separator in a name to
 emulate a folder structure. However, interpretation of such structure is up to the client.
