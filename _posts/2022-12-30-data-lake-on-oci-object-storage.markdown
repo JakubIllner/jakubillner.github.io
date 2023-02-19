@@ -1,5 +1,5 @@
 ---
-title: Decentralized Data Lake on OCI Object Storage
+title: Decentralized Data Lake on OCI Object Storage (Part 1)
 description: How to design decentralized and distributed Data Lake on OCI Object Storage
 tags:
 - Data Lake
@@ -35,6 +35,10 @@ Cloud Infrastructure (OCI) that use OCI Object Storage as data store. It address
 organization of Compartments, Groups, Policies, Buckets, and Data Catalog assets in a
 multi-domain Data Lake, with decentralized and possibly geographically distributed data
 domains.
+
+This is the first part of the post describing Data Lake on Oracle Cloud Infrastructure
+(OCI) with OCI Object Storage as data store. The second part is available here:
+[Decentralized Data Lake on OCI Object Storage (Part 2)](https://jakubillner.github.io/2023/02/19/data-lake-on-oci-object-storage-2.html).
 
 
 # __Principles__
