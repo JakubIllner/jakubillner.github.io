@@ -470,7 +470,7 @@ mapped to DATE and TIMESTAMP respectively.
 
 It is also not necessary to define partitions. Partitions are automatically derived from
 the object names, as Autonomous Database understands Hive conventions for partition names.
-Note that the partitioning strategy is LIST defined by one or more partition keys.
+Note that the partitioning strategy is LIST partitioning by all the partition keys.
 
 The only part of the external table definition that must be defined manually is data type
 of partition keys. Partition keys and their values are stored in object name only and it
