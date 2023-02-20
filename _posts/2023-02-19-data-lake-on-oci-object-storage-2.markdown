@@ -349,7 +349,7 @@ files added to Data Lake since the last harvesting.
 With Autonomous Data Warehouse, OCI Object Storage buckets are usually mapped to database
 schemas and Data Lake entities to external tables, as demonstrated on the picture below.
 For partitioned entities, it is further necessary to map table partitions. Once created,
-external tables 
+external tables may be queried via SQL like any other tables.
 
 ![Mapping of Object Storage to External Tables](/images/2023-02-19-data-lake-on-oci-object-storage-2/data-lake-on-oci-object-storage-mapping-adb.png)
 
