@@ -41,8 +41,8 @@ the main data entities from these domains.
 
 Entity is a logical concept of a data structure containing information about a business
 entity. Entity can be realized in a Data Product as a stream, table, or data set. In our
-case, entity is a collection of objects in OCI Object Storage with the same schema and
-format, with data related to the same business entity.
+case, entity is a collection of objects in OCI Object Storage, with the same schema and
+format, and with data related to the same business entity.
 
 Let's assume the data products consist of the following entities:
 
@@ -75,9 +75,9 @@ Revenue Assurance:
 
 Entities may be further decomposed into partitions to simplify data and lifecycle
 management and to improve performance of queries. Partitions are especially important for
-any entities that track temporal data. For these entities, partitions allows simple
-archival or deletion of historical data, they allow management operations on single
-partition, and they support partition pruning in queries.
+entities tracking temporal data. For these entities, partitions enable simple archival or
+deletion of historical data, they allow management operations on single partition, and
+they support partition pruning in queries.
 
 In our simple use case, all the entities contain temporal data and should be therefore
 partitioned. (Actually, most entities in Data Lake contain bi-temporal data, with Event
