@@ -536,5 +536,7 @@ into this post. I will return to them in some of the following posts, so stay tu
 * OCI Object Storage CLI commands: [Object Storage CLI Commands](https://docs.oracle.com/en-us/iaas/tools/oci-cli/3.23.0/oci_cli_docs/cmdref/os/object.html).
 * Overview of OCI Data Catalog: [Data Catalog Overview](https://docs.oracle.com/en-us/iaas/data-catalog/using/overview.htm).
 * Autonomous Database DBMS_CLOUD procedures: [DBMS_CLOUD Subprograms and REST APIs](https://docs.oracle.com/en/cloud/paas/autonomous-database/adbsa/dbms-cloud-subprograms.html).
+* Blog post on working with Parquet files in Oracle Database from Alexey Filanovskiy: [Working with Parquet files with Oracle Database](https://blogs.oracle.com/datawarehousing/post/parquet-files-oracle-database).
+* Blog post on working with Object Storage from Autonomous Database from Alexey Filanovskiy: [Working with Object Store data from Autonomous Database now became easier](https://blogs.oracle.com/datawarehousing/post/querying-object-store-data-from-autonomous-database-now-become-easier).
 
 
