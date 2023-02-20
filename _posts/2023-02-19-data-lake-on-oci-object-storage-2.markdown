@@ -40,8 +40,11 @@ the main data entities from these domains.
 ## Entities
 
 Entity is a logical concept of a data structure containing information about a business
-entity. Entity can be realized in a Data Product as a stream, table, or data set. Let's
-assume the data products consist of the following entities:
+entity. Entity can be realized in a Data Product as a stream, table, or data set. In our
+case, entity is a collection of objects in OCI Object Storage with the same schema and
+format, with data related to the same business entity.
+
+Let's assume the data products consist of the following entities:
 
 ![Entities](/images/2023-02-19-data-lake-on-oci-object-storage-2/data-lake-on-oci-object-storage-entities.png)
 
@@ -68,6 +71,20 @@ Revenue Assurance:
 * Revenue Difference entity represents differences between billed and calculated costs.
 
 
+## Partitions
+
+Entities may be further decomposed into partitions to simplify data and lifecycle
+management and to improve performance of queries. Partitions are especially important for
+any entities that track temporal data. For these entities, partitions allows simple
+archival or deletion of historical data, they allow management operations on single
+partition, and they support partition pruning in queries.
+
+In our simple use case, all the entities contain temporal data and should be therefore
+partitioned. (Actually, most entities in Data Lake contain bi-temporal data, with Event
+and Processing dates. Handling of bi-temporal data in a Data Lake is great topic for a
+future post and it is not described here.)
+
+
 # __Organization of Data Products, Entities, and Partitions__
 
 This section describes how you can organize Data Products, Entities, and Partitions in the
@@ -77,8 +94,8 @@ OCI Object Storage based Data Lake.
 ## Logical Hierarchy
 
 Before deciding on how to organize data, it is important to understand the logical
-hierarchy of Domains, Data Products and Entities. A simple hierarchy could look as
-follows.
+hierarchy of Domains, Data Products, Entities, and Partitions. A simple hierarchy could
+look as follows.
 
 ![Logical Hierarchy](/images/2023-02-19-data-lake-on-oci-object-storage-2/data-lake-on-oci-object-storage-logical-hierarchy.png)
 
@@ -88,11 +105,6 @@ follows.
 * Entity may optionally contain multiple Partitions.
 * Partitions might have additional hierarchy (e.g., Year -> Month -> Day).
 * Entity's data are stored in one or more Files.
-
-Partitions are required for any entities that track temporal data. Partitions are
-essential for managing lifecycle of such entities and for optimizing access performance.
-Partitions might be also useful to split data by key dimensions. Entities that provide
-latest or one-off information, do not require partitions.
 
 
 ## Physical Hierarchy
