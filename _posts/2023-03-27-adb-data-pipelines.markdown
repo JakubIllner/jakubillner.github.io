@@ -1,5 +1,5 @@
 ---
-title: Automated Load and Export with Oracle Data Pipelines
+title: Automated Load and Export Pipelines in Autonomous Database
 description: Using Data Pipelines for easy and reliable load and export of data between Autonomous Database and OCI Object Storage
 tags:
 - Data Lake
