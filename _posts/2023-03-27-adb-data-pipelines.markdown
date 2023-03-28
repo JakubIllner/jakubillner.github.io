@@ -176,7 +176,7 @@ create table gltrans_materialized (
 ```
 
 
-# __Import Pipelines__
+# __Load Pipelines__
 
 ## Prerequisites
 
@@ -193,7 +193,7 @@ Furthermore, the target table must be created in the ADW database.
 
 ## Create Pipeline
 
-The import pipeline `LOAD_GLTRANS` is created in two steps. The first step creates and
+The load pipeline `LOAD_GLTRANS` is created in two steps. The first step creates and
 names the pipeline.
 
 
@@ -240,7 +240,7 @@ such as CSV, the `field_list` is required.
 
 ## Test Pipeline
 
-To test the import pipeline, run the pipeline once, explore and validate the results. In
+To test the load pipeline, run the pipeline once, explore and validate the results. In
 other words, check there are no errors and that all data from OCI Object Storage is loaded
 into the target table.
 
@@ -352,7 +352,7 @@ of the pipeline.
 
 ## Monitor Data
 
-You can easily compare data loaded into target table via import pipeline with data in the
+You can easily compare data loaded into target table via load pipeline with data in the
 OCI Object Storage. To do so, you need to define an external table using the same location
 and format as the pipeline, and then run SQL query to compare the target table with this
 external table.
@@ -413,7 +413,7 @@ ____________________ _______________________ ___________________________ _______
 ## Import Command
 
 Oracle does not publish how exactly are the object storage objects loaded. But, by looking
-at the SQL statements running in the ADW database, you can see that import pipeline loads
+at the SQL statements running in the ADW database, you can see that load pipeline imports
 one object at time, using direct path with parallel DML. Example of the insert statement
 is below.
 
@@ -429,7 +429,7 @@ EXTERNAL MODIFY ( LOCATION ('https://objectstorage.uk-london-1.oraclecloud.com/n
 
 ## Create Pipeline
 
-Export pipeline is created the same way as import pipeline, with `pipeline_type` set to `EXPORT`.
+Export pipeline is created the same way as load pipeline, with `pipeline_type` set to `EXPORT`.
 
 ```
 begin
@@ -537,7 +537,7 @@ better readibility; in reality, every JSON document is stored on a single line.
 ## Monitor Pipeline
 
 You can monitor the export pipeline by querying the dictionary view
-`USER_CLOUD_PIPELINE_HISTORY`, same way as the import pipeline.
+`USER_CLOUD_PIPELINE_HISTORY`, same way as the load pipeline.
 
 ```
 SQL> select pipeline_id
@@ -589,17 +589,17 @@ from gltrans_materialized
 
 # __Summary__
 
-## Import Pipelines
+## Load Pipelines
 
 In a Data Lakehouse, you have a design choice if to query data in an object storage
 in-place, using external tables and DBMS_CLOUD package, or if to load object storage data
 into Autonomous Data Warehouse and run the query against data in the database. Data
-Pipelines bring parity to these choices - creating import pipelines is as easy as creating
-external tables. And, import pipelines support same object storages and same file formats
+Pipelines bring parity to these choices - creating load pipelines is as easy as creating
+external tables. And, load pipelines support same object storages and same file formats
 as external tables.
 
 __If you need an easy and reliable way to regularly import your data 1:1 from an object
-storage to Autonomous Data Warehouse, import pipelines provide the perfect tool for this
+storage to Autonomous Data Warehouse, load pipelines provide the perfect tool for this
 task.__ You can use them to sync an object storage with the Autonomous Data Warehouse, to
 improve performance of your object storage queries, or to load data from a staging area in
 the object storage.
@@ -619,7 +619,7 @@ decouples database from external data consumers and it provides standard API for
 controlled access to data. __Export pipelines provide the simplest way how to periodically
 sync data in Autonomous Data Warehouse with the object storage.__
 
-Unlike import pipelines, export pipelines may apply arbitrary transformations during the
+Unlike load pipelines, export pipelines may apply arbitrary transformations during the
 export by using the `query` parameter. However, there are still limitations. In my
 opinion, the biggest limitation is reliance on single timestamp attribute, which should be
 monotonically increasing. I see also a risk of records not being exported, if their
