@@ -1,5 +1,5 @@
 ---
-title: Automated Load and Export of Data to Autonomous Database with Data Pipelines
+title: Automated Load and Export with Data Pipelines in Autonomous Database
 description: Using Data Pipelines for easy and reliable load and export of data between Autonomous Database and OCI Object Storage
 tags:
 - Data Lake
@@ -576,26 +576,11 @@ values of `JOURNAL_CREATED_TIMESTAMP` attribute.
 
 ```
 SELECT ret_val   FROM TABLE(  DBMS_CLOUD.export_rows_tabfunc2(CURSOR(SELECT JSON_OBJECT(* RETURNING VARCHAR2(32767))  FROM (SELECT * FROM ( 
-select period_code, 
-  period_date, 
-  currency_code, 
-  journal_category_code, 
-  journal_posted_date, 
-  journal_created_date, 
-  journal_created_timestamp, 
-  journal_actual_flag, 
-  journal_status, 
-  journal_header_name, 
-  reversal_flag, 
-  journal_line_number, 
-  account_code, 
-  organization_code, 
-  project_code, 
-  journal_line_type, 
-  entered_debit_amount, 
-  entered_credit_amount, 
-  accounted_debit_amount, 
-  accounted_credit_amount
+select period_code, period_date, currency_code, journal_category_code, journal_posted_date,
+  journal_created_date, journal_created_timestamp, journal_actual_flag, journal_status,
+  journal_header_name, reversal_flag, journal_line_number, account_code, organization_code,
+  project_code, journal_line_type, entered_debit_amount, entered_credit_amount,
+  accounted_debit_amount, accounted_credit_amount
 from gltrans_materialized
  )  WHERE SYS_EXTRACT_UTC(CAST("JOURNAL_CREATED_TIMESTAMP" AS TIMESTAMP) AT TIME ZONE 'UTC')  > '28-MAR-23 05.03.51.153518000 AM' AND
     SYS_EXTRACT_UTC(CAST("JOURNAL_CREATED_TIMESTAMP" AS TIMESTAMP) AT TIME ZONE 'UTC')  <= '28-MAR-23 06.03.51.252969000 AM')),  :1))
