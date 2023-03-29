@@ -479,6 +479,30 @@ end;
 ```
 
 
+## Incremental Export
+
+When you define the parameter `key_column`, export pipeline will extract data
+incrementally. In other words, every execution of the pipeline will extract data that was
+inserted or updated since the previous execution. The following where condition is used
+for the incremental extraction.
+
+```
+WHERE
+  SYS_EXTRACT_UTC(CAST(<key_column> AS TIMESTAMP) AT TIME ZONE 'UTC')  > <previous_timestamp> AND
+  SYS_EXTRACT_UTC(CAST(<key_column> AS TIMESTAMP) AT TIME ZONE 'UTC')  <= <current_timestamp>
+```
+
+* `<key_column>` is casted as timestamp and converted to UTC time.
+* `<current_timestamp>` is timestamp of the current SCN (i.e., as of the beginning of the export) in UTC time.
+* `<previous_timestamp>` is timestamp in UTC time from the previous pipeline execution.
+
+Have this in mind when considering if to export data incrementally and which column to use
+as `key_column`. Also, be aware that data produced by in-flight transactions, not committed
+when the export starts, will not be visible to the export and will not be therefore
+exported. Ideally, the export should happen at time when there are no active transactions
+in table being exported.
+
+
 ## Exported Data
 
 The above export pipeline produces objects with names containing the prefix (from the
@@ -617,14 +641,14 @@ Export pipelines are useful for publishing information from Autonomous Data Ware
 Object storage is often used as a serving data store for a data product, because it
 decouples database from external data consumers and it provides standard API for
 controlled access to data. __Export pipelines provide the simplest way how to periodically
-sync data in Autonomous Data Warehouse with the object storage.__
+sync data in Autonomous Data Warehouse with the object storage.__ And, unlike load
+pipelines, export pipelines may apply arbitrary transformations during the export.
 
-Unlike load pipelines, export pipelines may apply arbitrary transformations during the
-export by using the `query` parameter. However, there are still limitations. In my
-opinion, the biggest limitation is reliance on single timestamp attribute, which should be
-monotonically increasing. I see also a risk of records not being exported, if their
-timestamp is less than the last exported timestamp. For these cases, using OCI GoldenGate
-with log based CDC approach might be more appropriate.
+Incremental export pipelines are suitable for cases when the pipeline may run in quiet
+periods, when there are no active transactions in tables being exported - otherwise some
+records might not be exported. Also, the timestamp column must be carefully selected to
+satisfy the where condition. If these requirements cannot be met, consider OCI GoldenGate
+with log based CDC approach instead.
 
 
 # __Resources__
