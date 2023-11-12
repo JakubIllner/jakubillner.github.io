@@ -215,12 +215,12 @@ for data engineers to analyze Data Integration runtime metadata.
 In this section I describe detailed steps on how to deploy and configure services for the
 data pipeline.
 
-* [Enable Data Integration workspace to write logs to Logging service](#enable-data-integration-workspace-to-write-logs-to-logging-service).
-* [Create Service Connector to transfer logs to Object Storage](#create-service-connector-to-transfer-logs-to-object-storage)
-* [Develop Data Integration task to load logs to Database](#develop-data-integration-task-to-load-logs-to-database)
-* [Automate load to database with Events and Functions](#automate-load-to-database-with-events-and-functions)
-* [Parse, transform, and aggregate logs with Views](#parse,-transform,-and-aggregate-logs-with-views)
-* [Analyze task runs in Oracle Analytics Cloud](#analyze-task-runs-in-oracle-analytics-cloud)
+* [A. Enable Data Integration workspace to write logs to Logging service](#a-enable-data-integration-workspace-to-write-logs-to-logging-service).
+* [B. Create Service Connector to transfer logs to Object Storage](#b-create-service-connector-to-transfer-logs-to-object-storage)
+* [C. Develop Data Integration task to load logs to Database](#c-develop-data-integration-task-to-load-logs-to-database)
+* [D. Automate load to database with Events and Functions](#d-automate-load-to-database-with-events-and-functions)
+* [E. Parse, transform, and aggregate logs with Views](#e-parse,-transform,-and-aggregate-logs-with-views)
+* [F. Analyze task runs in Oracle Analytics Cloud](#f-analyze-task-runs-in-oracle-analytics-cloud)
 
 For the sake of space I did not include prerequisites, such as provisioning of Autonomous
 Data Warehouse instance; provisioning of Data Integration workspace, connections, and
@@ -228,7 +228,7 @@ application; provisioning of Functions application and Registry; and provisionin
 Oracle Analytics Cloud instance. I assume the reader is familiar with these services.
 
 
-## Enable Data Integration Workspace to Write Logs to Logging Service
+## A. Enable Data Integration workspace to write logs to Logging service
 
 ### Configure Policy to Write to Logging
 
@@ -258,7 +258,7 @@ generate logs to the Logging service.
 ![Generated Logs](/images/2023-11-10-data-integration-analytics/generated-logs.jpg)
 
 
-## Create Service Connector to Transfer Logs to Object Storage
+## B. Create Service Connector to transfer logs to Object Storage
 
 ### Create Object Storage Bucket
 
@@ -295,7 +295,7 @@ object names use OCID of the service connector as the prefix.
 ![Generated Files](/images/2023-11-10-data-integration-analytics/generated-files.jpg)
 
 
-## Develop Data Integration Task to Load Logs to Database
+## C. Develop Data Integration task to load logs to Database
 
 ### Create Database Table
 
@@ -376,7 +376,7 @@ load logs. All tasks are parameterized by the parameter `P_OBJECT_NAME`.
 ![Task Pipeline](/images/2023-11-10-data-integration-analytics/task-pipeline.jpg)
 
 
-## Automate Load to Database with Events and Functions
+## D. Automate load to database with Events and Functions
 
 ### Create and Deploy Function
 
@@ -489,7 +489,7 @@ Functions, as you can see in the `Initiated By` column.
 ![Pipeline Runs](/images/2023-11-10-data-integration-analytics/pipeline-runs.jpg)
 
 
-## Parse, Transform, and Aggregate Logs with Views
+## E. Parse, transform, and aggregate logs with Views
 
 ### Parse Message to Get Parameters and Values
 
@@ -622,7 +622,7 @@ from aggregated_tasks;
 ```
 
 
-## Analyze Task Runs in Oracle Analytics Cloud
+## F. Analyze task runs in Oracle Analytics Cloud
 
 ### Create Data Set
 
