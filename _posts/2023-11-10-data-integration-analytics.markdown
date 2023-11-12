@@ -219,7 +219,7 @@ data pipeline.
 * [B. Create Service Connector to transfer logs to Object Storage](#b-create-service-connector-to-transfer-logs-to-object-storage)
 * [C. Develop Data Integration task to load logs to Database](#c-develop-data-integration-task-to-load-logs-to-database)
 * [D. Automate load to database with Events and Functions](#d-automate-load-to-database-with-events-and-functions)
-* [E. Parse, transform, and aggregate logs with Views](#e-parse,-transform,-and-aggregate-logs-with-views)
+* [E. Parse, transform, and aggregate logs with Views](#e-parse-transform-and-aggregate-logs-with-views)
 * [F. Analyze task runs in Oracle Analytics Cloud](#f-analyze-task-runs-in-oracle-analytics-cloud)
 
 For the sake of space I did not include prerequisites, such as provisioning of Autonomous
