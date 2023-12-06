@@ -128,10 +128,10 @@ PLSQL SDK. The `PIPELINED` keyword defines the function as pipelined function.
 * The function uses PLSQL SDK procedure `DBMS_CLOUD_OCI_OBS_OBJECT_STORAGE.LIST_OBJECTS`
 to retrieve list of objects in a bucket.
 
-* As most OCI API calls, the procedure uses pagination to handle large number of objects.
-If there are multiple pages, the procedure returns `NEXT_START_WITH`, which has to be used
-with `L_START` parameter of the next procedure invocation. Note that single call returns
-maximum of 1000 objects.
+* As most OCI API calls, the procedure `DBMS_CLOUD_OCI_OBS_OBJECT_STORAGE.LIST_OBJECTS`
+uses pagination to handle large number of objects. If there are multiple pages, it returns
+`NEXT_START_WITH` in the response, which has to be used with `L_START` parameter of the
+next procedure invocation. Note that single call returns maximum of 1000 objects.
 
 * Output from the function is provided via `PIPE ROW` statement. A single `PIPE ROW` emits
 one row to the output. `RETURN` statement must not return any value.
