@@ -16,10 +16,11 @@ tags:
 I was asked recently how to count objects in an OCI Object Storage bucket by the Storage
 Tier, from within Oracle Autonomous Database (ADB).
 
-Now this should be quite easy - Autonomous Database contains package DBMS_CLOUD, which
+Now this should be straightforward - Autonomous Database contains package `DBMS_CLOUD`, which
 allows ADB to access and manage objects in the Object Storage. One of the modules in the
-package is LIST_OBJECTS table function, which lists all objects in a bucket.
-Unfortunately, there is a catch - LIST_OBJECTS function does not return Storage Tier.
+package is `LIST_OBJECTS` function, which lists all objects in a bucket.
+
+Unfortunately, there is a catch - `LIST_OBJECTS` function does not return Storage Tier.
 
 ```
 SQL> select *
@@ -44,26 +45,30 @@ gl/trans/gl_trans_20230323_110006_443909_000000.parquet         4104642 g3iubo3J
 
 This post shows how you can easily build an alternative PLSQL table function that provides
 additional object level attributes like Storage Tier or Archival State, and use it instead
-of DBMS_CLOUD.LIST_OBJECTS. And while the function is quite simple, you can use the same
-concept to query many other resources
+of `DBMS_CLOUD.LIST_OBJECTS`. And while the function is quite simple, you can use the same
+concept to query many other OCI resources.
 
 
 # __Solution__
 
-## Concept
+## Approach
 
-The alternative function `LIST_OBJECTS_EXTENDED` uses two useful features of Oracle
-Autonomous Database:
+The solution is to build a table function `LIST_OBJECTS_EXTENDED` that returns list of
+objects in the specified bucket, including attributes not available via
+`DBMS_CLOUD.LIST_OBJECTS`. The function will use the following features:
 
-* __OCI PLSQL SDK__ is used to query and manage Oracle Infrastructure resources from PLSQL
-code in the database. OCI PLSQL SDK is preinstalled on Oracle Autonomous Database -
-Serverless. The function `LIST_OBJECTS_EXTENDED` uses OCI PLSQL SDK to get attributes of
-objects not available via DBMS_CLOUD.
+* __OCI PLSQL SDK__ to query and manage Oracle Infrastructure resources from PLSQL code in
+the database. By using OCI PLSQL SDK, the function can retrieve all attributes of objects
+not available via DBMS_CLOUD. Note that OCI PLSQL SDK is preinstalled on Oracle Autonomous
+Database - Serverless.
 
-* __Table Function__ produces a collection of rows that can be queried like a physical
-database table. You use a table function like the name of a database table, in the FROM
-clause of a query. The function `LIST_OBJECTS_EXTENDED` is designed as a table function,
-so that you can query the content from standard SELECT statement.
+* __Table Function__ to produce a collection of rows that can be queried like a physical
+database table, i.e., by specifying the function in the FROM clause of a SELECT query.
+
+Note I used OCI PLSQL SDK in a previous post [How to Get OCI Resource Utilization in
+PLSQL](https://jakubillner.github.io/2022/10/07/How-to-Get-OCI-Utilization-in-PLSQL.html),
+however I did not returned results as a table function.
+
 
 
 ## Code
@@ -94,6 +99,7 @@ begin
       l_start => v_next_start_with,
       fields => 'name,etag,size,timeCreated,md5,timeModified,storageTier,archivalState'
     );
+    -- Raise an exception if the API call was not successful
     if (v_response.status_code <> 200) then
       raise_application_error(-20000,'Call to DBMS_CLOUD_OCI_OBS_OBJECT_STORAGE.LIST_OBJECTS returned status '||v_response.status_code);
     end if;
@@ -111,20 +117,24 @@ end list_objects_extended;
 /
 ```
 
-* The function uses PLSQL SDK procedure `DBMS_CLOUD_OCI_OBS_OBJECT_STORAGE.LIST_OBJECTS`
-to retrieve list of objects in a bucket. For larger number of objects the API must be
-called repeatedly (pagination), as a single call is restricted to maximum of 1000 objects
-. Note this procedure corresponds to the ListObjects API call.
-
 * Parameters specify mandatory information such as Namespace, Bucket, Region, and
-Credential (defined via DBMS_CLOUD), needed by `DBMS_CLOUD_OCI_OBS_OBJECT_STORAGE.LIST_OBJECTS`.
+Credential, needed by by the PLSQL API. The credential must be either based on the API Key
+of an OCI user, or it must correspond to resource principal - `OCI$RESOURCE_PRINCIPAL`.
 
 * Return type must be of table type, so that the function can be used as pipelined function.
 The function uses table type `DBMS_CLOUD_OCI_OBJECT_STORAGE_OBJECT_SUMMARY_TBL` defined in the
-PLSQL SDK. Note the `PIPELINED` keyword.
+PLSQL SDK. The `PIPELINED` keyword defines the function as pipelined function.
+
+* The function uses PLSQL SDK procedure `DBMS_CLOUD_OCI_OBS_OBJECT_STORAGE.LIST_OBJECTS`
+to retrieve list of objects in a bucket.
+
+* As most OCI API calls, the procedure uses pagination to handle large number of objects.
+If there are multiple pages, the procedure returns `NEXT_START_WITH`, which has to be used
+with `L_START` parameter of the next procedure invocation. Note that single call returns
+maximum of 1000 objects.
 
 * Output from the function is provided via `PIPE ROW` statement. A single `PIPE ROW` emits
-one row to the output. Note that `RETURN` statement must not return any value.
+one row to the output. `RETURN` statement must not return any value.
 
 
 ## Usage
@@ -195,11 +205,13 @@ within Autonomous Database. For example, you could define functions for the foll
 * Object Storage - list buckets in a compartment
 * Compute - list VM instances in a compartment
 * Monitoring - retrieve metrics for a given resource
+* Logging - search for logs and return results as a table
 
 
 # __Resources__
 
 * OCI PLSQL SDK functions and types for OCI Object Storage: [OCI PLSQL SDK for OCI Object Storage](https://docs.oracle.com/en-us/iaas/pl-sql-sdk/doc/object-storage-package.html).
 * OCI API Reference Documentation for Object Storage ListObjects: [Object Storage - ListObjects](https://docs.oracle.com/en-us/iaas/api/#/en/objectstorage/20160918/Object/ListObjects).
-* Oracle Database 19c pipelined functions: [Using Pipelined and Parallel Table Functions](https://docs.oracle.com/en/database/oracle/oracle-database/19/addci/using-pipelined-and-parallel-table-functions.html).
+* Oracle Database 19c Data Cartridge Developer's Guide - Pipelined Functions: [Using Pipelined and Parallel Table Functions](https://docs.oracle.com/en/database/oracle/oracle-database/19/addci/using-pipelined-and-parallel-table-functions.html).
+* Oracle Database 19c PL/SQL Language Reference - Pipelined Functions: [Chaining Pipelined Table Functions for Multiple Transformations](https://docs.oracle.com/en/database/oracle/oracle-database/19/lnpls/plsql-optimization-and-tuning.html#GUID-ED557894-EC08-47E0-A629-0E4AEDDBB77B).
 
