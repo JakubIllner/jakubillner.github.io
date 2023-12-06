@@ -194,7 +194,7 @@ Standard                     756      4029379495
 # __Summary__
 
 This post shows how you can easily use OCI PLSQL SDK and table function to query objects
-in the Object Storage and to overcome the limitations of the DBMS_CLOUD.LIST_OBJECTS
+in the Object Storage and to overcome the limitations of the `DBMS_CLOUD.LIST_OBJECTS`
 function.
 
 More importantly, you can use the same concept to query and analyze any other OCI resource from
