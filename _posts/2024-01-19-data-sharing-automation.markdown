@@ -1,6 +1,6 @@
 ---
-title: Automate Publishing of Delta Shares with Autonomous Database
-description: How to automate publishing of Delta Shares from Oracle Autonomous Database
+title: Automate Publishing of Data Shares from Autonomous Database
+description: How to automate publishing of Data Shares from Oracle Autonomous Database
 tags:
 - Delta Sharing
 - Oracle Autonomous Database
@@ -124,6 +124,17 @@ recipients. It also contains an implementation of the Delta Sharing server, that
 requests from Delta Sharing clients, authenticates and authorizes the requests, and
 generates short-term pre-authenticated requests (PARs) to reach the shared data. Data is
 stored in OCI Object Storage, which is directly accessed by clients via PARs.
+
+
+## Terms
+
+* Cloud Storage Link - location where shared data is exported (Object Storage bucket and credential).
+* Data Share - named collection of tables or views that are shared with recipients.
+* Data Share Recipient - consumer who can access data share.
+* Data Share Version - data share is versioned; recipients may usually access only the latest version.
+* Data Share Publishing - process which exports data share and makes the new version available to recipients.
+* Activation Link - link used to download data share profile with authentication token.
+* Data Share Profile - JSON document with Delta Sharing endpoint and authentication token.
 
 
 ## Meeting the Requirements
@@ -396,8 +407,8 @@ end publish_share_wait;
 
 To understand the size of Object Storage required for published data share, I executed the
 loading pipeline for every day of April 2023. After every load I measured the size of
-Object Storage files used by the `GL_JOURNALS_SHARE` Share and compared it with the size of
-the General Ledger star schema in the ADB database.
+Object Storage files used by the `GL_JOURNALS_SHARE` and compared it with the size of the
+General Ledger star schema in the ADB database.
 
 ![Size of Published Data](/images/2024-01-19-data-sharing-automation/publish-shares-size.png)
 
