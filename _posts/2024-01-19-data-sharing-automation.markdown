@@ -12,19 +12,30 @@ tags:
 
 # __Introduction__
 
+## Data Sharing Options
+
 The last step in most data pipelines is publishing the final data product to entitled
 internal and external consumers. With Oracle Autonomous Database (ADB), you have several
 ways how to securely publish data:
 
 * SQL - consumers access data directly via SQL from JDBC or ODBC clients.
 * REST API - data is published as REST API, using Oracle REST Data Services (ORDS).
-* GraphQL - data is published via GraphQL queries, also supported by ORDS.
+* GraphQL - data is published as GraphQL queries, also supported by ORDS.
 * Streaming - database transactions are streamed via GoldenGate service to Kafka or other messaging systems.
 * Object Storage - data is exported to Object Storage and accessed via S3 API or OCI API.
 * Delta Sharing - data is shared from ADB using Delta Sharing open-source protocol.
 
 __In this post I will demonstrate how you can easily use Delta Sharing for automated
 publishing of General Ledger star schema from the Autonomous Database.__
+
+My intention is to show data sharing on realistic use case and with reasonably large data
+set. General Ledger star schema is an example of a typical dimensional model you can find
+in many data warehouses, with large fact table and multiple smaller dimensions. I simulate
+the daily load frequency of this schema and show how the data sharing can be incorporated
+into the loading pipeline.
+
+
+## Benefits of Delta Sharing
 
 Why did I choose Delta Sharing? It has several advantages over the other options:
 
@@ -33,24 +44,25 @@ Why did I choose Delta Sharing? It has several advantages over the other options
 * It shares both data and metadata (data schemas).
 * It supports fast acces to shared data.
 * Accessing the shared data does not impact the data provider.
-* It is designed for heterogeneous environment, across technologies, clouds, and organizations.
+* It is designed for heterogeneous environments, across technologies, clouds, and organizations.
 * Delta Sharing is open-source protocol, supported by many technologies.
 
 
-# __List of Content__
+## Post Topics
 
 As this is quite long post, here are the links to individual sections.
 
-* [Scenario](#scenario) - data sharing scenario and requirements.
+* [Use Case](#use-case) - source data, loading pipeline, and data sharing requirements.
 * [Concept](#concept) - Delta Sharing concept and how does it fit our scenario.
 * [Creating Data Share](#creating-data-share) - how to create and configure data share.
 * [Publishing Data Share](#publishing-data-share) - how to publish data share, automate the publishing, and monitor performance.
+* [Managing Data Share Versions](#managing-data-share-versions) - how to manage data share versions.
 * [Creating Data Share Recipient](#creating-data-share-recipient) - how to create recipient and generate data share profile.
 * [Accessing Data Share](#accessing-data-share) - how to connect to data share and refresh authentication token.
 * [Resources](#resources) - links to useful documentation pages, blog posts, and other resources.
 
 
-# __Scenario__
+# __Use Case__
 
 ## Data Model
 
@@ -130,7 +142,7 @@ stored in OCI Object Storage, which is directly accessed by clients via PARs.
 
 * Cloud Storage Link - location where shared data is exported (Object Storage bucket and credential).
 * Data Share - named collection of tables or views that are shared with recipients.
-* Data Share Recipient - consumer who can access data share.
+* Data Share Recipient - internal or external consumer who can access data share.
 * Data Share Version - data share is versioned; recipients may usually access only the latest version.
 * Data Share Publishing - process which exports data share and makes the new version available to recipients.
 * Activation Link - link used to download data share profile with authentication token.
@@ -565,6 +577,133 @@ As you can see, files use the following naming pattern:
 * File ID - internal file identifier to ensure uniqueness of files
 
 
+# __Managing Data Share Versions__
+
+## Drop Old Shares
+
+Whenever you publish the versioned data share, a new version of data share is created.
+This version requires space in the Object Storage. So it is a good practice to regularly
+purge unused versions to preserve space. There are several procedures you can use to drop
+old versions. Note that the current version cannot be dropped.
+
+* `DBMS_SHARE.DROP_SHARE_VERSION` - drop a single version.
+* `DBMS_SHARE.DROP_SHARE_VERSIONS` - drop range of versions.
+* `DBMS_SHARE.DROP_UNUSED_SHARE_VERSIONS` - drop all versions with the exception of current one.
+
+If you want to have an option to return to older versions, you might consider more
+complex scenario, in which you keep the latest N versions and drop all the others. Below
+is the `DROP_OLD_VERSIONS` that implements this logic.
+
+```
+create or replace procedure drop_old_versions (
+  p_share_name in varchar2,
+  p_keep_versions in number
+) authid current_user is
+  v_delete_from_version number;
+  v_delete_to_version number;
+begin
+  /* get versions to drop */
+  select
+    min(share_version), max(share_version) into v_delete_from_version, v_delete_to_version
+  from (
+    select share_version, status, rank() over (order by share_version desc) as version_rank
+    from user_share_versions
+    where share_name = p_share_name
+  )
+  where version_rank > p_keep_versions;
+  /* drop old versions */
+  if (v_delete_from_version is not null) then
+    dbms_share.drop_share_versions (
+      share_name => p_share_name,
+      from_share_version => v_delete_from_version,
+      to_share_version => v_delete_to_version,
+      destroy_objects => true,
+      force_drop => true
+    );
+  end if;
+end drop_old_versions;
+/
+```
+
+
+## Add Drop Old Share to Pipeline
+
+To automate the deletion of old versions you can create a new SQL task `DROP_OLD_VERSIONS`
+and add the task to the end of the pipeline, directly after the `PUBLISH_GL` task.
+
+![Data Pipeline with Publish and Drop Task](/images/2024-01-19-data-sharing-automation/gl-pipeline-with-publish-and-drop-task.jpg)
+
+
+## Return to Previous Version
+
+Sometimes you might need to revert the publish process and return to the previous version.
+You can do this easily using the procedure:
+
+* `DBMS_SHARE.SET_CURRENT_SHARE_VERSION` - set the version as current.
+
+For example, the following procedure `REVERT_TO_PREVIOUS_VERSION` returns to the previous
+version by seting the previous version as current and dropping the latest version.
+
+```
+create or replace procedure revert_to_previous_version (
+  p_share_name in varchar2
+) authid current_user is
+  v_latest_version number;
+  v_previous_version number;
+begin
+  /* get latest and previous versions */
+  select
+    min(share_version), max(share_version) into v_previous_version, v_latest_version
+  from (
+    select share_version, status, rank() over (order by share_version desc) as version_rank
+    from user_share_versions
+    where share_name = p_share_name
+  )
+  where version_rank <= 2;
+  /* set previous version as current and drop the latest version */
+  if (v_previous_version < v_latest_version) then
+    dbms_share.set_current_share_version (
+      share_name => p_share_name,
+      share_version => v_previous_version
+    );
+    dbms_share.drop_share_version (
+      share_name => p_share_name,
+      share_version => v_latest_version,
+      destroy_objects => true
+    );
+  end if;
+end revert_to_previous_version;
+/
+```
+
+
+## Visibility of Versions
+
+By default, recipients see the current version of the data share. When you publish a new
+version or revert to the previous version, recipients will automatically access the new
+current version. In most scenarios this is the required behaviour, as it means the
+recipients will always get the correct data.
+
+However, you can change the default behaviour and allow access to all versions. This is
+done by modifying the data share and recipient properties `VERSION_ACCESS` as shown below.
+
+```
+begin
+  dbms_share.update_recipient_property (
+    recipient_name => 'SAMPLE_RECIPIENT',
+    recipient_property => 'VERSION_ACCESS',
+    new_value => dbms_share.version_access_any
+  );
+  dbms_share.update_share_property (
+    share_name => 'GL_JOURNALS_SHARE',
+    share_property => 'VERSION_ACCESS',
+    new_value => dbms_share.version_access_any
+  );
+end;
+/
+```
+
+
 # __Creating Data Share Recipient__
 
 ## Create Recipient
@@ -630,7 +769,7 @@ Optionally, you may also need to modify some property of the recipient.
 begin
   dbms_share.update_recipient_property (
     recipient_name => 'SAMPLE_RECIPIENT',
-    recipient_property  => 'TOKEN_LIFETIME',
+    recipient_property => 'TOKEN_LIFETIME',
     new_value => '90 00:00:00'
   );
   commit;
