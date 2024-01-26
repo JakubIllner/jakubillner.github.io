@@ -131,11 +131,14 @@ and as a Data Recipient. In this post I will show how to use ADB as the Data Pro
 
 ![Delta Sharing Architecture in ADB](/images/2024-01-19-data-sharing-automation/delta-sharing-architecture.png)
 
-Oracle Autonomous Database Serverless supports creation and management of data shares and
+Oracle Autonomous Database supports creation and management of data shares and
 recipients. It also contains an implementation of the Delta Sharing server, that receives
 requests from Delta Sharing clients, authenticates and authorizes the requests, and
 generates short-term pre-authenticated requests (PARs) to reach the shared data. Data is
 stored in OCI Object Storage, which is directly accessed by clients via PARs.
+
+Note the Delta Sharing support is currently available with Autonomous Database Serverless.
+It is not yet available with Autonomous Database on Dedicated Exadata Infrastructure.
 
 
 ## Terms
@@ -287,9 +290,8 @@ where share_name = 'GL_JOURNALS_SHARE'
 
 ## Add Tables to Data Share
 
-Once the data share is created, you can add tables (including external tables) or views to
-the Share. Note that adding tables to the data share does not export any data. For this,
-the Share must be published.
+Once the data share is created, you can add tables or views to the Share. Note that adding
+tables to the data share does not export any data. For this, the Share must be published.
 
 ```
 begin
