@@ -604,7 +604,9 @@ create or replace procedure drop_old_versions (
 begin
   /* get versions to drop */
   select
-    min(share_version), max(share_version) into v_delete_from_version, v_delete_to_version
+    min(share_version), max(share_version)
+  into
+    v_delete_from_version, v_delete_to_version
   from (
     select share_version, status, rank() over (order by share_version desc) as version_rank
     from user_share_versions
@@ -653,7 +655,9 @@ create or replace procedure revert_to_previous_version (
 begin
   /* get latest and previous versions */
   select
-    min(share_version), max(share_version) into v_previous_version, v_latest_version
+    min(share_version), max(share_version)
+  into
+    v_previous_version, v_latest_version
   from (
     select share_version, status, rank() over (order by share_version desc) as version_rank
     from user_share_versions
