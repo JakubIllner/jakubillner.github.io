@@ -592,7 +592,7 @@ old versions. Note that the current version cannot be dropped.
 
 If you want to have an option to return to older versions, you might consider more
 complex scenario, in which you keep the latest N versions and drop all the others. Below
-is the `DROP_OLD_VERSIONS` that implements this logic.
+is the procedure `DROP_OLD_VERSIONS` that implements this logic.
 
 ```
 create or replace procedure drop_old_versions (
@@ -679,9 +679,9 @@ end revert_to_previous_version;
 
 ## Visibility of Versions
 
-By default, recipients see the current version of the data share. When you publish a new
-version or revert to the previous version, recipients will automatically access the new
-current version. In most scenarios this is the required behaviour, as it means the
+By default, recipients see the __current__ version of the data share. When you publish a
+new version or revert to the previous version, recipients will automatically access the
+new current version. In most scenarios this is the required behaviour, as it means the
 recipients will always get the correct data.
 
 However, you can change the default behaviour and allow access to all versions. This is
