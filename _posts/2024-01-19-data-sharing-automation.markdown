@@ -719,7 +719,7 @@ Data Studio to send the activation link.
 
 ```
 begin
-  dbms_share.create_recipient (
+  dbms_share.create_share_recipient (
     recipient_name => 'SAMPLE_RECIPIENT',
     description => 'Recipient used by OAC reporting',
     email => 'some.user@example.com'
