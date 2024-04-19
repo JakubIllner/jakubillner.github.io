@@ -147,7 +147,7 @@ while (datetime.datetime.today()-start_ts).total_seconds() <= 600:
 ### Batch
 
 This approach also inserts data using a single row INSERT statement, but it commits the
-transaction after all records returned by the generator (i.e., batch) are inserted.
+transaction after all records (i.e., batch) returned by the generator are inserted.
 Compared to the previous option, this method significantly reduces the frequency of COMMITs.
 
 ```
@@ -294,7 +294,7 @@ components are deployed in the OCI region UK South (London).
 
 * Autonomous Data Warehouse Serverless - configured with 16/8/4 ECPUs (without Autoscaling), 1
 TB of storage, and Secure access from anywhere (i.e., without private endpoint and with
-mandatory mTLS). Note that 4 ECPUs correspond approximately to 1 OCPU.
+mandatory mTLS). Note that 4 ECPUs correspond approximately to 1 OCPU, i.e., 16 ECPUs to 4 OCPUs.
 
 * Compute VM - configured with VM.Standard.E4.Flex shape with 16 OCPUs and running Oracle
 Linux 7.9. The VM is placed in a public subnet and it communicates with ADW over public IP.
@@ -420,42 +420,7 @@ Note that Fast Ingest in 23c will support compression, as outlined in the blog
 [Oracle Database 23c Fast Ingest Enhancements](https://blogs.oracle.com/in-memory/post/oracle-database-23c-fast-ingest-enhancements).
 
 
-# __Considerations__
-
-## Changes in Data Model
-
-For your workload, you might want to consider some changes in the data model that will
-impact the throughput performance. You should test the throughput with your data model to
-get realistic figures.
-
-* Changing the data model for your data.
-* Adding primary or unique keys constraints.
-* Adding analytical indexes.
-* Changing JSON data type to BLOB (needed for large JSON documents).
-* Partitioning the target table, possibly by time.
-* Inserting data into multiple target tables.
-* Adding materialized views with refresh ON COMMIT.
-
-
-## Tuning
-
-For large data volumes, requiring performance beyond the figures achieved with
-out-of-the-box setup, you might need additional tuning of the data model, data loader, or
-configuration. Some options to consider are below.
-
-* Analyzing the contention bottlenecks for Fast and/or Array scenarios.
-* Optimizing array size and commit frequency.
-* Partitioning for scalability.
-* Using Direct Path Load with micro-batching.
-* Sharding with Oracle Sharding or manual.
-* Eliminate gateways in the traffic between clients and database.
-
-I also recommend reviewing Oracle White Paper by Andy Rivenes on
-[Best Practices For High Volume IoT workloads with Oracle Database 19c](https://www.oracle.com/technetwork/database/in-memory/overview/twp-bp-for-iot-with-12c-042017-3679918.html)
-for ideas on other optimization methods.
-
-
-# __Test Results__
+## Test Results
 
 The table shows results that I used for the charts above. Note these results were produced
 with 16 ECPUs allocated for the ADW instance, with Autoscaling disabled.
@@ -506,6 +471,41 @@ with 16 ECPUs allocated for the ADW instance, with Autoscaling disabled.
 * ADW CPU Utilization % - average CPU utilization of the ADW instance, retrieved from Monitoring service with the query `CpuUtilization[1m]{resourceId = "<ADW OCID>"}.mean()`.
 * ADW Client Sent Bytes - average number of bytes per minute sent from the client VM to the ADW instance, retrieved from Monitoring service with the query `SQLNetBytesFromClient[1m]{resourceId = "<ADW OCID>"}.mean()`.
 * Client CPU Utilization % - average CPU utilization of the client VM instance, retrieved from Monitoring service with the query `CPUUtilization[1m]{resourceId = "<Client VM OCID>"}.mean()`.
+
+
+# __Considerations__
+
+## Changes in Data Model
+
+For your workload, you might want to consider some changes in the data model that will
+impact the throughput performance. You should test the throughput with your data model to
+get realistic figures.
+
+* Changing the data model for your data.
+* Adding primary or unique keys constraints.
+* Adding analytical indexes.
+* Changing JSON data type to BLOB (needed for large JSON documents).
+* Partitioning the target table, possibly by time.
+* Inserting data into multiple target tables.
+* Adding materialized views with refresh ON COMMIT.
+
+
+## Tuning
+
+For large data volumes, requiring performance beyond the figures achieved with
+out-of-the-box setup, you might need additional tuning of the data model, data loader, or
+configuration. Some options to consider are below.
+
+* Analyzing the contention bottlenecks for Fast and/or Array scenarios.
+* Optimizing array size and commit frequency.
+* Partitioning for scalability.
+* Using Direct Path Load with micro-batching.
+* Sharding with Oracle Sharding or manual.
+* Eliminate gateways in the traffic between clients and database.
+
+I also recommend reviewing Oracle White Paper by Andy Rivenes on
+[Best Practices For High Volume IoT workloads with Oracle Database 19c](https://www.oracle.com/technetwork/database/in-memory/overview/twp-bp-for-iot-with-12c-042017-3679918.html)
+for ideas on other optimization methods.
 
 
 # __Resources__
