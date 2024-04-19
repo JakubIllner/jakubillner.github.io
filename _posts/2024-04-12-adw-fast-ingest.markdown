@@ -514,7 +514,7 @@ with 16 ECPUs allocated for the ADW instance, with Autoscaling disabled.
 * Oracle Database 19c, Database Performance Tuning Guide, Tuning the System Global Area: [Using the Fast Ingest](https://docs.oracle.com/en/database/oracle/oracle-database/19/tgdba/tuning-system-global-area.html#GUID-CFADC9EA-2E2F-4EBB-BA2C-3663291DCC25).
 * Oracle Database 19c, Utilities: [Data Loading Methods](https://docs.oracle.com/en/database/oracle/oracle-database/19/sutil/oracle-sql-loader-conventional-and-direct-loads.html).
 * Oracle Database 19c, PL/SQL Packages and Types Reference: [DBMS_MEMOPTIMIZE](https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_MEMOPTIMIZE.html).
-* Oracle Database In-Memory blog by Andy Rivenes: [New in Oracle Database 19c: Memoptimized Rowstore – Fast Ingest](https://blogs.oracle.com/database/post/new-in-oracle-database-19c-memoptimized-rowstore-fast-ingest).
+* Oracle Database In-Memory blog by Andy Rivenes: [New in Oracle Database 19c: Memoptimized Rowstore â€“ Fast Ingest](https://blogs.oracle.com/database/post/new-in-oracle-database-19c-memoptimized-rowstore-fast-ingest).
 * Oracle Database In-Memory blog by Andy Rivenes: [Memoptimized Rowstore - Fast Ingest Updates](https://blogs.oracle.com/in-memory/post/fast-ingest-updates).
 * Oracle Database In-Memory blog by Andy Rivenes: [Oracle Database 23c Fast Ingest Enhancements](https://blogs.oracle.com/in-memory/post/oracle-database-23c-fast-ingest-enhancements).
 * Oracle White Paper by Andy Rivenes: [Best Practices For High Volume IoT workloads with Oracle Database 19c](https://www.oracle.com/technetwork/database/in-memory/overview/twp-bp-for-iot-with-12c-042017-3679918.html).
