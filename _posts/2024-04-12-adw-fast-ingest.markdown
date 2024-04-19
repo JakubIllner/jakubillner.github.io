@@ -178,7 +178,7 @@ while (datetime.datetime.today()-start_ts).total_seconds() <= 600:
     insert_array = []
     for data_record in data_array:
         data_record_js = json.dumps(data_record)
-        insert_array.append(datetime.datetime.today(),data_record_js)
+        insert_array.append((datetime.datetime.today(),data_record_js))
     cursor.executemany('insert into target_table (ts, payload) values (:ts, :payload)', insert_array)
     connection.commit()
 ```
@@ -208,7 +208,7 @@ while (datetime.datetime.today()-start_ts).total_seconds() <= 600:
     insert_array = []
     for data_record in data_array:
         data_record_js = json.dumps(data_record)
-        insert_array.append(datetime.datetime.today(),data_record_js)
+        insert_array.append((datetime.datetime.today(),data_record_js))
     cursor.executemany('insert /*+ MEMOPTIMIZE_WRITE */ into target_table (ts, payload) values (:ts, :payload)', insert_array)
 ```
 
@@ -294,7 +294,7 @@ components are deployed in the OCI region UK South (London).
 
 * Autonomous Data Warehouse Serverless - configured with 16/8/4 ECPUs (without Autoscaling), 1
 TB of storage, and Secure access from anywhere (i.e., without private endpoint and with
-mandatory mTLS).
+mandatory mTLS). Note that 4 ECPUs correspond approximately to 1 OCPU.
 
 * Compute VM - configured with VM.Standard.E4.Flex shape with 16 OCPUs and running Oracle
 Linux 7.9. The VM is placed in a public subnet and it communicates with ADW over public IP.
