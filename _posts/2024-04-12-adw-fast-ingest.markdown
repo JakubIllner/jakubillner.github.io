@@ -313,7 +313,7 @@ I tested the insert performance for the following combination of parameters:
 * Scenarios - Single, Batch, Array, Fast.
 * Number of Workers (Threads) - 1, 2, 4, 8, 16, 24, 32, 40.
 
-The observed results for 16 ECPUs are in the table [Test Results](test-results) below.
+The observed results for 16 ECPUs are in the table [Test Results](#test-results) below.
 
 
 # __Observations__
