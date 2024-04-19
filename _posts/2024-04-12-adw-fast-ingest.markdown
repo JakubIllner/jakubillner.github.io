@@ -401,8 +401,9 @@ throughput, it needs the least amount of ADW CPU.
 
 ## Data Compression
 
-The final chart shows how much storage is allocated. To compare the scenarios, I measured
-average storage required by a single record.
+The final chart shows how much storage is allocated. To compare the results between
+scenarios with different amount of generated data, I measured average storage required by
+a single record.
 
 ![Data Compression](/images/2024-04-12-fast-ingest/average-row-size.png)
 
