@@ -56,7 +56,7 @@ This throughput was achieved with the following configuration:
 With Array Interface, data was compressed with HCC, achieving compression ratio of 5-6x. Fast
 Ingest does not support compression in 19c - it is coming with Oracle Database 23c.
 
-Based on the observations described below, I recommend
+Based on the observations described in the post, I recommend
 
 * Using Fast Ingest method in case your workload does not require durability guarantee.
 Fast Ingest provides the best insert throughput, but there is a chance of data loss if for
@@ -78,7 +78,7 @@ throughput.)
 
 ## Concept
 
-The hypothetical use case I will test is depicted below:
+The hypothetical use case I tested is depicted below:
 
 ![Concept](/images/2024-04-12-fast-ingest/adw-fast-ingest-concept.png)
 
@@ -147,8 +147,8 @@ while (datetime.datetime.today()-start_ts).total_seconds() <= 600:
 ### Batch
 
 This approach also inserts data using a single row INSERT statement, but it commits the
-transaction after the whole batch (array of records) is inserted. Compared to the previous
-option, this method significantly reduces the frequency of COMMITs.
+transaction after all records returned by the generator (i.e., batch) are inserted.
+Compared to the previous option, this method significantly reduces the frequency of COMMITs.
 
 ```
 start_ts = datetime.datetime.today()
@@ -165,8 +165,8 @@ while (datetime.datetime.today()-start_ts).total_seconds() <= 600:
 
 This approach inserts the whole array of rows in a single call, using the Oracle Database
 array interface. Data is committed after the array insert. Compared to the previous
-option, this method significantly reduces the network round-trips between the client and
-Oracle Database.
+option, this method significantly reduces generated redo and the network round-trips
+between the client and Oracle Database.
 
 Note that to use the array interface in Python, it is necessary to use `executemany()`
 instead of `execute()`.
