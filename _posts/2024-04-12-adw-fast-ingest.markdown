@@ -482,13 +482,13 @@ For your workload, you might want to consider some changes in the data model tha
 impact the throughput performance. You should test the throughput with your data model to
 get realistic figures.
 
-* Changing the data model for your data.
-* Adding primary or unique keys constraints.
-* Adding analytical indexes.
-* Changing JSON data type to BLOB (needed for large JSON documents).
-* Partitioning the target table, possibly by time.
-* Inserting data into multiple target tables.
-* Adding materialized views with refresh ON COMMIT.
+* Change the data model for your data.
+* Add primary or unique keys constraints.
+* Add analytical indexes.
+* Change JSON data type to BLOB if you have large JSON documents.
+* Partition the target table by time.
+* Insert data into multiple target tables.
+* Add materialized views with refresh ON COMMIT.
 
 
 ## Tuning
@@ -497,12 +497,13 @@ For large data volumes, requiring performance beyond the figures achieved with
 out-of-the-box setup, you might need additional tuning of the data model, data loader, or
 configuration. Some options to consider are below.
 
-* Analyzing the contention bottlenecks for Fast and/or Array scenarios.
-* Optimizing array size and commit frequency.
-* Partitioning for scalability.
-* Using Direct Path Load with micro-batching.
-* Sharding with Oracle Sharding or manual.
+* Scale up the ADW instance and/or enable Compute Autoscaling.
 * Eliminate gateways in the traffic between clients and database.
+* Analyze the contention bottlenecks for Fast and/or Array scenarios.
+* Optimize array size and commit frequency.
+* Partition for scalability.
+* Use Direct Path Load with micro-batching.
+* Shard with Oracle Sharding or manually.
 
 I also recommend reviewing Oracle White Paper by Andy Rivenes on
 [Best Practices For High Volume IoT workloads with Oracle Database 19c](https://www.oracle.com/technetwork/database/in-memory/overview/twp-bp-for-iot-with-12c-042017-3679918.html)
