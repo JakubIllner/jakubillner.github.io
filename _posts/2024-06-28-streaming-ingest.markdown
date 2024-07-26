@@ -58,6 +58,11 @@ SDK (I used Python SDK), because the rate limiting is applied on the partition a
 the stream level. So, it is entirely possible that some messages in a single API call
 succeed while others do not.
 
+I did not observe any performance or latency issues with Connector Hub. I used default
+setting with batch size of 100 MB and batch duration of 7 minutes. With this setup, the
+Connector Hub generated one file per partition every 7 minutes, as it did not reach the
+size limit. For lower latency, you can use shorter batch duration.
+
 
 # __Design__
 
@@ -352,14 +357,16 @@ request.principal.compartment.id='<compartment_OCID>'}
 
 # __Observations__
 
-## Execution Parameters
+## Writing to Streaming
+
+### Execution Parameters
 
 I tested the throughput for combination of 2, 4, and 8 partitions and 1, 2, 4, and 8
 workers (threads). The test duration was 10 minutes for every combination of partitions
 and workers. There was no think time between `put_messages()` calls.
 
 
-## Write Throughput
+### Write Throughput
 
 The write throughput is defined as number of bytes written successfully to the stream in 1
 second. I calculated this metric as total size of successfully written messages divided by
@@ -382,14 +389,18 @@ applied on partition and not on stream level.
 2 partitions leads to throttling, not to higher throughput.
 
 The measured throughput corresponds to the Streaming metric
-`PutMessagesThroughput.Bytes[1m]{resourceId = "<stream_OCID>"}.sum()`,
+
+```
+PutMessagesThroughput.Bytes[1m]{resourceId = "<stream_OCID>"}.sum()
+```
+
 as you can see for the test with 8 partitions. The metric is in minutes; to get the
-throughput in seconds it has to be divided by 60.
+average throughput in seconds it has to be divided by 60.
 
 ![Put Messages Throughput](/images/2024-06-28-streaming-ingest/put-messages-throughput.png)
 
 
-## Write Throttling
+### Write Throttling
 
 Write throttling happens when the load generator attempts to write with higher rate than what is
 supported for the given stream. In this case some messages are throttled with status `429
@@ -407,8 +418,58 @@ messages are retried and the retry logic applies exponential backoff approach. I
 words, the more throttled messages there are, the more time the load generator spends
 sleeping between retries.
 
+* If we increase number of threads to 8 and more, some messages will be lost as 8 retries
+is not enough to keep the rate below the stream limit. We would need to increase the
+stream limit (or increase the number or duration of retries) to prevent this happening.
 
-## Structure of Target Files
+
+## Storing Messages in Object Storage
+
+### Connector Hub Latency
+
+Connector Hub produces Data Freshness metric to measure the age of the oldest processed
+record in the most recently read data set. For connectors continuously reading and writing
+messages this metric shows the latency between the availability of data in the source and
+the target.
+
+```
+DataFreshness[1m]{connectorId = "<connector_hub_OCID>"}.mean()
+```
+
+Unfortunately, in the case of Streaming to Object Storage connector, the messages are
+written to the target in batches and the Data Freshness metric is meaningless, as a single
+batch consists of multiple data sets.
+
+Latency is therefore given by the rollover configuration paramaters - batch size (default
+is 100 MB) and batch duration (default is 420000 ms or 7 minutes) - that define how
+frequenty are files written to the Object Storage.
+
+In our case, you can see that the latency was about 7 minutes, as the message rate and
+size did not reach the batch size limit.
+
+```
++------------------------------------------------------------------------------------------------------------------+
+| name                                                               | size     | time-created                     |
++------------------------------------------------------------------------------------------------------------------+
+| <connector_hub_OCID>/0/20240628T082842Z_20240628T083550Z.0.data.gz | 51505308 | 2024-06-28T08:35:52.264000+00:00 |
+| <connector_hub_OCID>/0/20240628T083550Z_20240628T084259Z.0.data.gz | 37801993 | 2024-06-28T08:43:01.213000+00:00 |
+| <connector_hub_OCID>/0/20240628T084300Z_20240628T085002Z.0.data.gz | 52240781 | 2024-06-28T08:50:04.936000+00:00 |
+| <connector_hub_OCID>/0/20240628T085002Z_20240628T085706Z.0.data.gz | 37548676 | 2024-06-28T08:57:08.280000+00:00 |
+| <connector_hub_OCID>/0/20240628T085707Z_20240628T090242Z.0.data.gz | 42410294 | 2024-06-28T09:04:15.746000+00:00 |
+| <connector_hub_OCID>/0/20240628T090442Z_20240628T091147Z.0.data.gz | 53608638 | 2024-06-28T09:12:01.921000+00:00 |
+| <connector_hub_OCID>/0/20240628T091147Z_20240628T091442Z.0.data.gz | 21981862 | 2024-06-28T09:19:10.819000+00:00 |
+| <connector_hub_OCID>/1/20240628T082842Z_20240628T083550Z.0.data.gz | 51067001 | 2024-06-28T08:35:54.395000+00:00 |
+| <connector_hub_OCID>/1/20240628T083550Z_20240628T084302Z.0.data.gz | 37652032 | 2024-06-28T08:43:03.594000+00:00 |
+| <connector_hub_OCID>/1/20240628T084302Z_20240628T085009Z.0.data.gz | 52175689 | 2024-06-28T08:50:12.127000+00:00 |
+| <connector_hub_OCID>/1/20240628T085010Z_20240628T085727Z.0.data.gz | 39018021 | 2024-06-28T08:57:32.821000+00:00 |
+| <connector_hub_OCID>/1/20240628T085728Z_20240628T090443Z.0.data.gz | 38847097 | 2024-06-28T09:04:47.664000+00:00 |
+| <connector_hub_OCID>/1/20240628T090446Z_20240628T091147Z.0.data.gz | 53488698 | 2024-06-28T09:11:56.386000+00:00 |
+| <connector_hub_OCID>/1/20240628T091147Z_20240628T091443Z.0.data.gz | 22346226 | 2024-06-28T09:19:11.531000+00:00 |
++------------------------------------------------------------------------------------------------------------------+
+```
+
+
+### Structure of Target Files
 
 When configuring Connector Hub for writing to Object Storage target, you must provide the
 bucket for generated objects and optionally the file prefix. Connector Hub will produce
@@ -427,7 +488,7 @@ prefix (not shown), start timestamp, end timestamp, and `data.gz` suffix.
 * Compression - files are compressed using Gzip compression.
 
 
-## Structure of Target Messages
+### Structure of Target Messages
 
 Once decompressed, the files contain messages in JSON Lines format, with every line having
 the following structure.
@@ -486,16 +547,16 @@ You might also want to change the configuration of Connector Hub for writing dat
 the Object Storage.
 
 * Modify the default parameters specifying how often Connector Hub writes to Object
-Storage. Default batch size is 100 MB and default batch time is 7 minutes (420000 ms). If
-either the size or the time exceed the limit, Connector Hub will produce new file.
+Storage. Default batch size is 100 MB and default batch duration is 7 minutes (420000 ms).
+If either the size or the time exceed the limit, Connector Hub will produce new file.
 
 * You may optionally add a Function task to process or filter source messages before they
 are written to the target.
 
 * You cannot specify the capacity of the Connector Hub currently. If you exceed the
 capacity of the connector hub (I did not reach the capacity during the testing), you may
-need to use an alternative technology (such as Oracle GoldenGate or Kafka Connect) for
-higher throughput.
+need to use an alternative technology (such as Oracle GoldenGate, Oracle Integration, or
+Kafka Connect) for higher throughput.
 
 
 # __Resources__
