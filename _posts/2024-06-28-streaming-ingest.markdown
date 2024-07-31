@@ -22,6 +22,11 @@ you need to load IoT events into a Bronze layer in an Object Storage based Data 
 that the events may be processed, curated, aggregated, and archived, prior the analytics
 and publishing? And what if you need to decouple event producers from the Data Lake?
 
+The typical pattern for ingesting large number of concurrent events into a Data Lake is to
+decouple the event acquisition from the write to the Data Lake. The events are published
+by many parallel producers into an Event Store with minimal latency, while the write to
+the Data Lake is batched and delayed, to avoid fragmentation and optimize the storage.
+
 In this post I will show how to use Streaming service to store and manage events produced
 by multiple parallel producers. I will also demonstrate how to configure Connector Hub to
 write the events from Streaming into Object Storage bucket for further processing. And
@@ -44,10 +49,10 @@ logic, that must be added on top of the API call.
 Performance of writing data into a stream in the Streaming service is determined by the
 number of partitions allocated to the stream and the distribution of data across
 partitions. A single partition supports write throughput of 1 MB/sec. With data evenly
-distributed across partitions, the write performance scales linearly with the number of
+distributed across partitions, the write throughput scales linearly with the number of
 partitions.
 
-In the use case I tested, I observed a write performance of about 7.5 MB/sec for the
+In the use case I tested, I observed a write throughput of about 7.5 MB/sec for the
 stream with 8 partitions, or about 94% of the theoretical maximum of 8 MB/sec. The events
 were grouped into batches of 60-100 messages, with the key having the same value for the
 whole batch. The key was generated randomly across batches.
@@ -61,7 +66,7 @@ succeed while others do not.
 I did not observe any performance or latency issues with Connector Hub. I used default
 setting with batch size of 100 MB and batch duration of 7 minutes. With this setup, the
 Connector Hub generated one file per partition every 7 minutes, as it did not reach the
-size limit. For lower latency, you can use shorter batch duration.
+size limit. To lower the latency, you can shorten the batch duration.
 
 
 # __Design__
@@ -539,6 +544,10 @@ unexpected loads.
 will have to provision a new stream with higher number of partitions and redirect
 producers and consumers to this stream. Streaming does not support scaling number of
 partitions currently.
+
+* Instead of using OCI Streaming API or SDK for publishing messages, you can use Kafka
+APIs instead. Please refer to [Using Streaming with Apache Kafka](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility.htm)
+for more information.
 
 
 ## Changes in Connector Hub Configuration
