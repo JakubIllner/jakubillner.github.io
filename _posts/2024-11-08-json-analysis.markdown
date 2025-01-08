@@ -1,5 +1,5 @@
 ---
-title: Loading and Analyzing Large JSON Documents
+title: Loading and Analyzing Large and Complex JSON Documents
 description: Approach to loading and analyzing large JSON documents in Autonomous Database based Oracle Data Lakehouse
 tags:
 - Oracle Database 23ai
@@ -719,20 +719,20 @@ I tested the above solution with two data sets:
 
 The parameters of these data sets are as as follows:
 
-| Data Set    | Days | Files  | Documents | Lines      | Bytes          | Avg Files in Day | Avg Documents in Day | Avg Lines per Document | Avg Bytes per Document |
-| :---        | ---: | ---:   | ---:      | -----:     | ------:        | ---:             | ---:                 | ---:                   | ---:                   |
-| Large       |   91 | 38250  | 133676    | 70187054   | 34307445637    | 420              | 1469                 | 525                    | 256646                 |
-| Small       |   91 | 35959  | 1800868	  | 90983295   | 48600785493    | 395              | 19790                | 51                     | 26987                  |
+| Data Set    | Days | Files  | Documents | Lines      | Size (MB) | Avg Files in Day | Avg Documents in Day | Avg Lines per Document | Avg kB per Document |
+| :---        | ---: | ---:   | ---:      | -----:     | ------:   | ---:             | ---:                 | ---:                   | ---:                |
+| Large       |   91 | 38250  | 133676    | 70187054   | 34307     | 420              | 1469                 | 525                    | 257                 |
+| Small       |   91 | 35959  | 1800868	  | 90983295   | 48601     | 395              | 19790                | 51                     | 27                  |
 
 * Days - number of days with generated data (3 months).
 * Files - total number of generated files.
 * Documents - total number of generated JSON documents in files.
 * Lines - total number of "Invoice Lines" in generated JSON documents.
-* Bytes - total size of generated files.
+* Size (MB) - total size of generated files in MB.
 * Avg Files in Day - average number of files generated per day.
 * Avg Documents in Day - average number of JSON documents generated per day.
 * Avg Lines per Document - average number of "Invoice Lines" in a single JSON document.
-* Avg Bytes per Document - average size of a single JSON document.
+* Avg kB per Document - average size of a single JSON document in kB.
 
 
 ## Collection Size
@@ -741,16 +741,16 @@ When loaded into the partitioned JSON Collection table, the JSON documents requi
 
 ![Data Size](/images/2024-11-08-json-analysis/data-size.png)
 
-| Data Set    | Partitions | Table Partition | LOB Partition | Total Bytes | File Bytes  | Compression Ratio | Total Documents |
-| :---        | ---:       | ---:            | ---:          | ---:        | ---:        | ---:              | ---:            |                                           
-| Large       |  92        | 763363328       | 26601324544   | 27364687872 | 34307445637 | 1.29              | 133676          |       
-| Small       |  92        | 3060793344      | 40005271552   | 43066064896 | 48600785493 | 1.21              | 1800868         |    
+| Data Set    | Partitions | Table Partition (MB) | LOB Partition (MB) | Total Size (MB) | File Size (MB)  | Compression Ratio | Total Documents |
+| :---        | ---:       | ---:                 | ---:               | ---:            | ---:            | ---:              | ---:            |                                           
+| Large       |  92        | 763                  | 26601              | 27365           | 34307           | 1.29              | 133676          |       
+| Small       |  92        | 3061                 | 40005              | 43066           | 48601           | 1.21              | 1800868         |    
 
 * Partitions - number of table partitions (number of days + 1).
-* Table Partition - number of bytes allocated by segment type `TABLE PARTITION`.
-* LOB Partition - number of bytes allocated by segment type `LOB PARTITION`.
-* Total Bytes - total number of bytes allocated by `INVOICE_COLLECTION` table.
-* File Bytes - total size of generated files.
+* Table Partition (MB) - storage allocated by segment type `TABLE PARTITION` in MB.
+* LOB Partition (MB) - storage allocated by segment type `LOB PARTITION` in MB.
+* Total Size (MB) - total storage allocated by `INVOICE_COLLECTION` table in MB.
+* File Size (MB) - total size of generated files in MB.
 * Compression Ratio - compression ratio calculated as "File Bytes" / "LOB Partition".
 
 JSON documents in the Oracle Database 23ai use JSON data type with native binary format
@@ -768,17 +768,17 @@ Documents stored inline benefit from HCC compression and Exadata smart scans.
 
 Materialized views defined in the section [Materialized Views](#materialized-views) require additional storage:
 
-| Data Set    | Partitions | INVOICE MVIEW | INVOICE LINE MVIEW | INVOICE TAX MVIEW | MVIEW Bytes | Collection Bytes | Overhead Ratio |
-| :---        | ---:       | ---:          | ---:               | ---:              | ---:        | ---:             | ---:           |                                           
-| Large       |  92        | 771751936     | 196011520          | 771751936         | 10739515392 | 27364687872      | 39%            |   
-| Small       |  92        | 1106247680    | 25609371648        | 1258291200        | 27973910528 | 43066064896      | 65%            |
+| Data Set    | Partitions | INVOICE MVIEW (MB) | INVOICE LINE MVIEW (MB) | INVOICE TAX MVIEW (MB) | MVIEW Size (MB) | Collection Size (MB) | Overhead Ratio |
+| :---        | ---:       | ---:               | ---:                    | ---:                   | ---:            | ---:                 | ---:           |                                           
+| Large       |  92        | 772                | 9196                    | 772                    | 10740           | 27365                | 39%            |   
+| Small       |  92        | 1106               | 25609                   | 1258                   | 27974           | 43066                | 65%            |
 
 * Partitions - number of table partitions (number of days + 1).
-* INVOICE MVIEW - number of bytes allocated by materialized view `INVOICE_MVIEW`.
-* INVOICE LINE MVIEW - number of bytes allocated by materialized view `INVOICE_LINE_MVIEW`.
-* INVOICE TAX MVIEW - number of bytes allocated by materialized view `INVOICE_TAX_MVIEW`.
-* MVIEW Bytes - total number of bytes allocated by all mnaterialized views.
-* Collection Bytes - total number of bytes allocated by `INVOICE_COLLECTION` table.
+* INVOICE MVIEW (MB) - storage allocated by materialized view `INVOICE_MVIEW` in MB.
+* INVOICE LINE MVIEW (MB) - storage allocated by materialized view `INVOICE_LINE_MVIEW` in MB.
+* INVOICE TAX MVIEW (MB) - storage allocated by materialized view `INVOICE_TAX_MVIEW` in MB.
+* MVIEW Size (MB) - total storage allocated by all materialized views in MB.
+* Collection Size (MB) - storage allocated by `INVOICE_COLLECTION` table in MB.
 * Overhead Ratio - additional storage required by mviews, calculated as 100* "MVIEW Bytes" / "Collection Bytes".
 
 The size of materialized views depends entirely on your data and the definition of views.
@@ -878,13 +878,15 @@ by the much better latency and concurrency of user queries.
 
 # __Considerations__
 
-There are many ways how to work with JSON data. You may consider the following changes in
-the solution design, as they might be appropriate for your needs.
+There are many ways how to work with JSON data. You may consider the following ideas and
+changes in the solution design, as they might be appropriate for your needs.
 
 * Use standard tables with JSON column(s), instead of JSON Collection Table.
 * Use different partitioning model for the JSON Collection Table and materialized views.
 * Load JSON Collection Table with INSERT SELECT FROM EXTERNAL method via ORACLE_BIGDATA access driver.
 * Use materialized views refreshed as COMPLETE or FAST ON DEMAND, possibly using Partition Change Tracking.
+* Use JSON-Relational Duality View instead of JSON Collection Table. You will not need materialized views with this approach.
+* Transform and flatten JSON documents outside the database, for example using OCI Data Integration.
 
 
 # __Resources__
