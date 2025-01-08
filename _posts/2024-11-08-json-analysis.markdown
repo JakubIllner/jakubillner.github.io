@@ -1,5 +1,5 @@
 ---
-title: Loading and Analyzing Large and Complex JSON Documents
+title: Loading and Analysis of Large and Complex JSON Documents
 description: Approach to loading and analyzing large JSON documents in Autonomous Database based Oracle Data Lakehouse
 tags:
 - Oracle Database 23ai
