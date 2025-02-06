@@ -8,7 +8,7 @@ tags:
 ---
 
 
-![Intro Picture](/images/2025-01-24-dbt-with-adb/sunset.jpg)
+![Intro Picture](/images/2025-01-24-dbt-with-adb/sunset.JPG)
 
 # __Introduction__
 
@@ -49,8 +49,8 @@ why to consider dbt?
 Based on my short experience with dbt Core, I believe that dbt is aimed at data engineers
 who prefer working with SQL code instead of GUI, who need 100% control over the code and
 who want to maintain the transformations in versioning tool like GitHub. For these data
-engineers, dbt provides a framework for writing transformation code in SQL, orchestrating
-and executing the data pipelines, and applying tests on data.
+engineers, dbt provides a great framework for writing transformation code in SQL,
+orchestrating and executing the data pipelines, and applying tests on data.
 
 Also, dbt enforces "ELT" approach and layered architecture (e.g., medallion architecture
 with Bronze, Silver, and Gold layers). In other words, dbt assumes that you load all
