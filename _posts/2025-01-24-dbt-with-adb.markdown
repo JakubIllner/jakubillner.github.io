@@ -8,17 +8,16 @@ tags:
 ---
 
 
-![Intro Picture](/images/2025-01-24-dbt-with-adb//sunset.jpg)
+![Intro Picture](/images/2025-01-24-dbt-with-adb/sunset.jpg)
 
 # __Introduction__
 
 Dbt is a popular data transformation tool that is used to curate, enrich, aggregate, and
-analyze data in a data warehouse. Dbt allows you to write a modular, reusable SQL or
-Python modules that implement required transformations and business logic. The modules are
+analyze data in a data warehouse. With dbt, you write a modular, reusable SQL or Python
+models that implement required transformations and business logic. The models are
 automatically executed according to the dependencies in the code. The code may be version
 controlled, reviewed, tested, and documented by the tool. The principles upon which the
-dbt is founded are described in [The dbt
-Viewpoint](https://docs.getdbt.com/community/resources/viewpoint).
+dbt is founded are described in [The dbt Viewpoint](https://docs.getdbt.com/community/resources/viewpoint).
 
 Dbt comes in two flavors. Dbt Core is an open-source tool that you install on compute
 infrastructure and use to design and run transformations. Dbt Cloud is a fully managed,
@@ -42,9 +41,10 @@ data warehouse.
 
 # __Why to use dbt?__
 
-There are many ETL tools that can work with ADB. Oracle Data Transforms is available as 
-part of the ADB service. OCI Data Integration supports ADB as well as many other OCI services.
-There are many 3rd party ETL tools working with ADB. So why to consider dbt? 
+There are many ETL tools that can work with Oracle Autonomous Database. Oracle Data
+Transforms is available as part of the ADB service. OCI Data Integration supports ADB as
+well as many other OCI services. There are many 3rd party ETL tools working with ADB. So
+why to consider dbt?
 
 Based on my short experience with dbt Core, I believe that dbt is aimed at data engineers
 who prefer working with SQL code instead of GUI, who need 100% control over the code and
@@ -52,8 +52,8 @@ who want to maintain the transformations in versioning tool like GitHub. For the
 engineers, dbt provides a framework for writing transformation code in SQL, orchestrating
 and executing the data pipelines, and applying tests on data.
 
-Also, dbt assumes "ELT" approach and layered architecture (e.g., medallion architecture
-with Bronze, Silver, and Gold layers). In other words, dbt expects that you load all
+Also, dbt enforces "ELT" approach and layered architecture (e.g., medallion architecture
+with Bronze, Silver, and Gold layers). In other words, dbt assumes that you load all
 source data into the Staging or Bronze layer as-is, and only after data lands in the data
 warehouse, transformations are applied.
 
