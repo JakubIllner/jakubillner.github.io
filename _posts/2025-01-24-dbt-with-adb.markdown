@@ -313,16 +313,16 @@ dbt_tls:
   outputs:
     dev:
       type: oracle
-      database: '{{ env_var(''DBT_ORACLE_DATABASE'') }}'
-      host: '{{ env_var(''DBT_ORACLE_HOST'') }}'
-      password: '{{ env_var(''DBT_ORACLE_PASSWORD'') }}'
-      port: '{{ env_var(''DBT_ORACLE_PORT'') }}'
-      protocol: '{{ env_var(''DBT_ORACLE_PROTOCOL'') }}'
-      schema: '{{ env_var(''DBT_ORACLE_SCHEMA'') }}'
-      service: '{{ env_var(''DBT_ORACLE_SERVICE'') }}'
-      user: '{{ env_var(''DBT_ORACLE_USER'') }}'
-      oml_cloud_service_url: '{{ env_var(''DBT_ORACLE_OML_URL'') }}'
-      threads: '{{ env_var(''DBT_ORACLE_THREADS'') | int}}'
+      database: '\{\{ env_var(''DBT_ORACLE_DATABASE'') \}\}'
+      host: '\{\{ env_var(''DBT_ORACLE_HOST'') \}\}'
+      password: '\{\{ env_var(''DBT_ORACLE_PASSWORD'') \}\}'
+      port: '\{\{ env_var(''DBT_ORACLE_PORT'') \}\}'
+      protocol: '\{\{ env_var(''DBT_ORACLE_PROTOCOL'') \}\}'
+      schema: '\{\{ env_var(''DBT_ORACLE_SCHEMA'') \}\}'
+      service: '\{\{ env_var(''DBT_ORACLE_SERVICE'') \}\}'
+      user: '\{\{ env_var(''DBT_ORACLE_USER'') \}\}'
+      oml_cloud_service_url: '\{\{ env_var(''DBT_ORACLE_OML_URL'') \}\}'
+      threads: '\{\{ env_var(''DBT_ORACLE_THREADS'') | int\}\}'
   target: dev
 ```
 
@@ -367,7 +367,7 @@ $ dbt --profile tls debug
 14:27:27    retry_count: 1
 14:27:27    retry_delay: 3
 14:27:27    oml_cloud_service_url: https://<db_name>.adb.uk-london-1.oraclecloudapps.com
-14:27:27    session_info: {}
+14:27:27    session_info: \{\}
 14:27:27  Registered adapter: oracle=1.9.0
 14:27:27    Connection test: [OK connection ok]
 
@@ -462,13 +462,13 @@ dbt_mtls:
   outputs:
     dev:
       type: oracle
-      user: "{{ env_var('DBT_ORACLE_USER') }}"
-      password: "{{ env_var('DBT_ORACLE_PASSWORD') }}"
-      database: "{{ env_var('DBT_ORACLE_DATABASE') }}"
-      tns_name: "{{ env_var('DBT_ORACLE_TNS_NAME') }}"
-      schema: "{{ env_var('DBT_ORACLE_SCHEMA') }}"
-      oml_cloud_service_url: '{{ env_var(''DBT_ORACLE_OML_URL'') }}'
-      threads: '{{ env_var(''DBT_ORACLE_THREADS'') | int}}'
+      user: "\{\{ env_var('DBT_ORACLE_USER') \}\}"
+      password: "\{\{ env_var('DBT_ORACLE_PASSWORD') \}\}"
+      database: "\{\{ env_var('DBT_ORACLE_DATABASE') \}\}"
+      tns_name: "\{\{ env_var('DBT_ORACLE_TNS_NAME') \}\}"
+      schema: "\{\{ env_var('DBT_ORACLE_SCHEMA') \}\}"
+      oml_cloud_service_url: '\{\{ env_var(''DBT_ORACLE_OML_URL'') \}\}'
+      threads: '\{\{ env_var(''DBT_ORACLE_THREADS'') | int\}\}'
   target: dev
 ```
 
@@ -511,7 +511,7 @@ $ dbt --profile dbt_mtls debug
 13:05:35    retry_count: 1
 13:05:35    retry_delay: 3
 13:05:35    oml_cloud_service_url: https://<db_name>.adb.uk-london-1.oraclecloudapps.com
-13:05:35    session_info: {}
+13:05:35    session_info: \{\}
 13:05:35  Registered adapter: oracle=1.9.0
 13:05:35    Connection test: [OK connection ok]
 
@@ -560,7 +560,7 @@ The first model `invoice_lines_v.sql` creates a view `INVOICE_LINES_V` transform
 collection table into relational structure.
 
 ```
-{{ config( materialized="view") }}
+\{\{ config( materialized="view") \}\}
 
 with invoice_lines as (
    select
@@ -631,7 +631,7 @@ The second model `invoice_lines_agg_t.sql` uses the view defined in the previous
 aggregate data and materialize them in a table `INVOICE_LINES_AGG_T`.
 
 ```
-{{ config( materialized="table") }}
+\{\{ config( materialized="table") \}\}
 
 with invoice_lines_agg as (
    select
@@ -644,7 +644,7 @@ with invoice_lines_agg as (
       sum(line_tax_amount)           as tax_amount,
       sum(line_net_amount)           as net_amount
    from
-      {{ ref("invoice_lines_v") }}
+      \{\{ ref("invoice_lines_v") \}\}
    group by
       customer_number,
       customer_name,
