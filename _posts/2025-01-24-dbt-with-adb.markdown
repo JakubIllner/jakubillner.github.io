@@ -563,6 +563,7 @@ I used sample data and transformation logic from my previous post
 The first model `invoice_lines_v.sql` creates a view `INVOICE_LINES_V` transforming JSON
 collection table into relational structure.
 
+<!--  {% raw %} -->
 ```
 {{ config( materialized="view") }}
 
@@ -627,6 +628,7 @@ select
 from
    invoice_lines
 ```
+<!-- {% endraw %} -->
 
 
 ### Model Creating Table
@@ -634,6 +636,7 @@ from
 The second model `invoice_lines_agg_t.sql` uses the view defined in the previous model to
 aggregate data and materialize them in a table `INVOICE_LINES_AGG_T`.
 
+<!--  {% raw %} -->
 ```
 {{ config( materialized="table") }}
 
@@ -667,6 +670,7 @@ select
 from
    invoice_lines_agg
 ```
+<!-- {% endraw %} -->
 
 
 ## Run Project
