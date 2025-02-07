@@ -308,23 +308,25 @@ export ORA_PYTHON_DRIVER_TYPE=thin
 
 The parameters in `~/.dbt/profiles.yml` file are substituted by environment variables as follows:
 
+<!--  {% raw %} -->
 ```
 dbt_tls:
   outputs:
     dev:
       type: oracle
-      database: '\{\{ env_var(''DBT_ORACLE_DATABASE'') \}\}'
-      host: '\{\{ env_var(''DBT_ORACLE_HOST'') \}\}'
-      password: '\{\{ env_var(''DBT_ORACLE_PASSWORD'') \}\}'
-      port: '\{\{ env_var(''DBT_ORACLE_PORT'') \}\}'
-      protocol: '\{\{ env_var(''DBT_ORACLE_PROTOCOL'') \}\}'
-      schema: '\{\{ env_var(''DBT_ORACLE_SCHEMA'') \}\}'
-      service: '\{\{ env_var(''DBT_ORACLE_SERVICE'') \}\}'
-      user: '\{\{ env_var(''DBT_ORACLE_USER'') \}\}'
-      oml_cloud_service_url: '\{\{ env_var(''DBT_ORACLE_OML_URL'') \}\}'
-      threads: '\{\{ env_var(''DBT_ORACLE_THREADS'') | int\}\}'
+      database: '{{ env_var(''DBT_ORACLE_DATABASE'') }}'
+      host: '{{ env_var(''DBT_ORACLE_HOST'') }}'
+      password: '{{ env_var(''DBT_ORACLE_PASSWORD'') }}'
+      port: '{{ env_var(''DBT_ORACLE_PORT'') }}'
+      protocol: '{{ env_var(''DBT_ORACLE_PROTOCOL'') }}'
+      schema: '{{ env_var(''DBT_ORACLE_SCHEMA'') }}'
+      service: '{{ env_var(''DBT_ORACLE_SERVICE'') }}'
+      user: '{{ env_var(''DBT_ORACLE_USER'') }}'
+      oml_cloud_service_url: '{{ env_var(''DBT_ORACLE_OML_URL'') }}'
+      threads: '{{ env_var(''DBT_ORACLE_THREADS'') | int}}'
   target: dev
 ```
+<!-- {% endraw %} -->
 
 
 ### Connection Test
@@ -367,7 +369,7 @@ $ dbt --profile tls debug
 14:27:27    retry_count: 1
 14:27:27    retry_delay: 3
 14:27:27    oml_cloud_service_url: https://<db_name>.adb.uk-london-1.oraclecloudapps.com
-14:27:27    session_info: \{\}
+14:27:27    session_info: {}
 14:27:27  Registered adapter: oracle=1.9.0
 14:27:27    Connection test: [OK connection ok]
 
@@ -457,6 +459,7 @@ export ORA_PYTHON_DRIVER_TYPE=thick
 
 The parameters in `~/.dbt/profiles.yml` file are substituted by environment variables as follows:
 
+<!--  {% raw %} -->
 ```
 dbt_mtls:
   outputs:
@@ -471,6 +474,7 @@ dbt_mtls:
       threads: '{{ env_var(''DBT_ORACLE_THREADS'') | int}}'
   target: dev
 ```
+<!-- {% endraw %} -->
 
 
 ### Connection Test
