@@ -23,7 +23,7 @@ Data integration tools must often deal with distributed data and complex topolog
 Data sources, data targets, and processing engines may be deployed across geographies,
 data centers, and cloud regions. Transferring, integrating, and processing
 geographically distributed data has not only significant impact on performance and
-latency, but it could also significantly increase egress costs in commercial clouds.
+latency, but it could also increase egress costs in commercial clouds.
 
 __Data Transforms uses several methods that make the service well suited for data
 integration and processing in distributed environments. I believe these methods are the
@@ -39,7 +39,7 @@ Oracle Data Transforms is a low-code data integration and batch transformation s
 in Oracle Cloud Infrastructure (OCI). It lets users move, cleanse, and transform data using
 a visual drag-and-drop interface instead of writing code.
 
-Data Transforms uses ELT (Extract, Load, Transform) architecture, with source and target
+Data Transforms is based on the ELT (Extract, Load, Transform) architecture, with source and target
 databases providing the SQL based transformation engine, and Data Transforms managing the
 connectors, data pipeline design, orchestration, scheduling, metadata, and monitoring.
 
@@ -135,7 +135,7 @@ that can be executed, scheduled, or included in a Workflow.
 
 The 1st scenario tests simple transfer of data from the source table in the source database
 to the target table in the target database, without any transformation. A good example of
-this data flow is loading the bronze layer from the source in a different data store. 
+this data flow is loading the bronze layer from the source. 
 
 ![Data Transfer from Source to Target - Design](/images/2026-10-14-data-transforms-as-etl-hub/design-scen-1-direct-mapping.png)
 
@@ -246,7 +246,7 @@ Data Transforms uses several methods that make Data Transforms suitable for data
 integration and processing in distributed environments. I believe these methods are the
 best practices that work really well in majority of cases.
 
-* __Staging table(s)__ - Data Transforms uses staging tables to decouple the data transfer from
+* __Staging table(s)__ - Data Transforms utilizes staging tables to decouple the data transfer from
 the data processing. This enables the ELT model and set processing in Data Flows and it improves
 the reliability and restartability of the data integration tasks.
 
@@ -272,7 +272,7 @@ Medallion architecture.
 
 # __Limitations__
 
-It is worth noticing that Data Transforms have some limitations that might be important for less
+It is worth noticing that Data Transforms has some limitations that might be important for less
 standard distributed scenarios.
 
 * __No control over the batch size__ - Developers cannot customize Array Interface batch size.
